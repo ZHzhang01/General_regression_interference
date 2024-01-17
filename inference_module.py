@@ -29,6 +29,8 @@ def make_Zs(Y,ind1,ind0,pscores1,pscores0,subsample=False):
     i0 = ind0[subsample]
     ps1 = pscores1[subsample]
     ps0 = pscores0[subsample]
+    print('ps1.shape:', ps1.shape)
+    print('ps0.shape:', ps0.shape)
     weight1 = i1.copy().astype('float')
     weight0 = i0.copy().astype('float')
     weight1[weight1 == 1] = i1[weight1 == 1] / ps1[weight1 == 1]
@@ -36,6 +38,85 @@ def make_Zs(Y,ind1,ind0,pscores1,pscores0,subsample=False):
     Z = np.ones(Y.size) * (-1000) # filler entries that won't be used
     Z[subsample] = Y[subsample] * (weight1 - weight0)
     return Z
+
+
+
+def make_Zs_haj(Y,ind1,ind0,pscores1,pscores0,subsample=False):
+    """Generates vector of Z_i's, used to construct HT estimator.
+
+    Parameters
+    ----------
+    Y : numpy float array
+        n-dimensional outcome vector.
+    ind1 : numpy boolean array
+        n-dimensional vector of indicators for first exposure mapping.
+    ind0 : numpy boolean array
+        n-dimensional vector of indicators for second exposure mapping.
+    pscores1 : numpy float array
+        n-dimensional vector of probabilities of first exposure mapping for each unit.
+    pscores0 : numpy float array
+        n-dimensional vector of probabilities of second exposure mapping for each unit
+    subsample : numpy boolean array
+        When set to an object that's not a numpy array, the function will define subsample to be an n-dimensional array of ones, meaning it is assumed that all n units are included in the population. Otherwise, it must be an boolean array of the same dimension as Z where True components indicate population inclusion.
+
+    Returns
+    -------
+    n-dimensional numpy float array, where entries corresponding to the True entries of subsample are equal to the desired Z's, and entries corresponding to False subsample entries are set to -1000.
+    """
+    if type(subsample) != np.ndarray: subsample = np.ones(Y.size, dtype=bool)
+    i1 = ind1[subsample]
+    i0 = ind0[subsample]
+    ps1 = pscores1[subsample]
+    ps0 = pscores0[subsample]
+    weight1 = i1.copy().astype('float')
+    weight0 = i0.copy().astype('float')
+    weight1[weight1 == 1] = i1[weight1 == 1] / ps1[weight1 == 1] 
+    weight0[weight0 == 1] = i0[weight0 == 1] / ps0[weight0 == 1] 
+    print('weight1:', weight1)
+    print('weight0:', weight0)
+
+    print('len of weight1:', len(weight1))
+    print('len of weight0:', len(weight0))
+
+    print('ps1:', ps1)
+    print('ps0:', ps0)
+    print('length of subsample:', len(subsample))
+
+
+    # print('weight1.sum:', weight1.sum())
+    # print('weight0.sum:', weight0.sum())
+
+    if weight1.sum() != 0:
+
+        weight1 = weight1 * len(weight1) / weight1.sum()
+
+    if weight0.sum() != 0:
+
+        weight0 = weight0 * len(weight0) / weight0.sum()
+
+    print('weight1:', weight1)
+    print('weight0:', weight0)
+
+    #adjust to haj estimator:
+
+    # weight1 = weight1/ (1/len(Y) * weight1.sum())
+    print('length of subsample:', len(subsample))
+    print('weight1.sum:', weight1.sum())
+    print('weight0.sum:', weight0.sum())
+    # weight0 = weight0/ (1/len(Y) * weight0.sum())
+
+    Z = np.ones(Y.size) * (-1000) # filler entries that won't be used
+    Z[subsample] = Y[subsample] * (weight1 - weight0)
+    return Z
+
+
+
+
+
+
+
+
+
 
 def network_SE(Zs, A, subsample=False, K=0, exp_nbhd=True, disp=False, b=-1):
     """Network-dependence robust standard errors.

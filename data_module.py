@@ -127,7 +127,8 @@ def assemble_data():
 
     # data = data[(data.SCHID == 24) | (data.SCHID == 22) | (data.SCHID == 60) | (data.SCHID == 56) | (data.SCHID == 58)] # restrict sample to five largest schools
 
-    data = data[(data.SCHID == 24)] # restrict sample to five largest schools
+#     data = data[(data.SCHID == 24, 56, 22, 60, 58)] # restrict sample to five largest schools
+    data = data[(data.SCHID == 24) | (data.SCHID == 22) | (data.SCHID == 60) | (data.SCHID == 56) | (data.SCHID == 58)] # restrict sample to five largest schools
 
 
     # construct graph
