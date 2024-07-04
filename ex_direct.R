@@ -162,7 +162,7 @@ matrix_data <- symmetric_matrix
 # 计算矩阵的行和
 row_sums <- rowSums(matrix_data)
 # 对非负整数矩阵进行行和归一化
-normalized_matrix <- t(apply(matrix_data, 1, function(x) {
+normalized_matrix <- t((matrix_data, 1, function(x) {
   if (sum(x) > 0) {
     normalized_row <- x / sum(x)
   } else {
@@ -489,7 +489,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 X_db <- X_db - w_haj * orth_coef_haj_lin
 #维度：1+1+col(X)+col(X); 1+1+col(X)+col(X); 
 #之后如果有全零的列要删除，找到所有元素均为0的列索引
-zero_cols_idx <- apply(X_db, 2, function(x) all(X_db == 0))
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 # 删除所有元素均为0的列并输出剩下的矩阵
 X_db <- X_db[, !zero_cols_idx]
 #here we construct the new X_db;
