@@ -255,7 +255,7 @@ sim_res<- map_dfr(1:100, ~{
   #Moreover, we use the lin's method!  G+HT+lin; Lin的第一种
   X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec)) #这是初始的G
   X_db <- X_db - w * (orth_coef_lin)  #it is n*4;  n*1,  n*4
-  # X_db <- cbind(X_db,2) #5个维度
+  # X_db <- cbind(X_db,2) 
   X_db <- X_db[, -(5:6)]
   X_db <- cbind(X_db,1)
   # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
@@ -416,7 +416,7 @@ sim_res<- map_dfr(1:100, ~{
   
   
   
-  lm_haj <- lm(Y~1+T_vec+T_vec:X, w = T_vec/pscore1+(1-T_vec)/pscore0)
+  lm_haj <- lm(Y~1+T_vec+X+T_vec:X, w = T_vec/pscore1+(1-T_vec)/pscore0)
   w <- T_vec/pscore1+(1-T_vec)/pscore0
   e_haj <- lm_haj %>% resid(); Gao_L <- lm_haj %>% coef() %>% .[2]
   C_haj <- cbind(1,T_vec, T_vec*X)
