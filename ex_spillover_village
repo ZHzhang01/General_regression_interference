@@ -373,6 +373,7 @@ cluster_record <- cluster_record[, top_five_cols]
 X <- cbind(X, cluster_record)
 
 X <- scale(X)
+# X <- X[, 1:6]
 
 
 #Gao_F
@@ -592,6 +593,132 @@ w_haj_0 <- (1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
 
 #we start to construct our own methods!
 ############################################################################################################################
+treat1 <- filtered_data$ex_intensive
+#first case
+X_aug <- get_X(X,treat1, G ) #we revise it!
+# X_aug <- cbind(X_aug, 1)
+X_db <- X_aug - w_haj * (orth_coef_haj)  #it is n*4;  n*1,  n*4
+# D_2 <- scale(X_db*w, scale = FALSE)
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
+# 删除所有元素均为0的列并输出剩下的矩阵
+X_db <- X_db[, !zero_cols_idx]
+D_2 <- X_db * w
+quadratic_function <- function(hbeta) {
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result<- sqrt(result)
+  return(result)
+}
+# 使用优化函数找到最小值和对应的位置
+result <- optim( vector("logical", length = (2+2 * ncol(X))    ) * 1,          quadratic_function)
+# 输出最优值和最优位置
+cat("最小值：", result$value, "\n")
+cat("最优位置：", result$par, "\n")
+hbeta_2_haj <- result$par
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+Ours_G_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+var_Ours_G_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_G_haj_plus <- sqrt(var_Ours_G_haj_plus)
+print(var_Ours_G_haj_plus)
+
+
+
+
+
+#second case
+#consider the G+haj+sat:
+#we consider the (X_db * T_vec, X_db * (1-T_vec)):
+X_aug <- get_X(X,treat1, G ) #we revise it!
+X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
+X_db <- X_db - w_haj * orth_coef_haj_lin
+# X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
+# D_2 <- scale(X_db*w, scale = FALSE)
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
+# 删除所有元素均为0的列并输出剩下的矩阵
+X_db <- X_db[, !zero_cols_idx]
+D_2 <- X_db * w
+quadratic_function <- function(hbeta) {
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result<- sqrt(result)
+  return(result)
+}
+# 使用优化函数找到最小值和对应的位置
+result <- optim( vector("logical", length = (2+2 * ncol(X))*2    ) * 1,          quadratic_function)
+# 输出最优值和最优位置
+cat("最小值：", result$value, "\n")
+cat("最优位置：", result$par, "\n")
+hbeta_2_haj <- result$par
+var_Ours_G_haj_plus_lin <- result$value
+Ours_G_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+print(Ours_G_haj_plus_lin)
+
+
+#third case
+# X_db <- X - w_haj * (orth_coef_haj[,3])  #it is n*4;  n*1,  n*4
+X_db <- X
+# D_2 <- scale(X_db*w, scale = FALSE)
+D_2 <- X_db*w
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
+# 删除所有元素均为0的列并输出剩下的矩阵
+X_db <- X_db[, !zero_cols_idx]
+D_2 <- X_db * w
+quadratic_function <- function(hbeta) {
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result<- sqrt(result)
+  return(result)
+}
+# 使用优化函数找到最小值和对应的位置
+result <- optim( vector("logical", length = ( ncol(X))    ) * 1,          quadratic_function)
+# 输出最优值和最优位置
+cat("最小值：", result$value, "\n")
+cat("最优位置：", result$par, "\n")
+hbeta_2_haj <- result$par
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+Ours_X_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+var_Ours_X_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_X_haj_plus <- sqrt(var_Ours_X_haj_plus)
+print(var_Ours_X_haj_plus)
+
+
+#fourth case:
+X_aug <- X #we revise it!
+X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
+X_db <- X_db - w_haj * orth_coef_haj_lin
+# X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
+# D_2 <- scale(X_db*w, scale = FALSE)
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
+# 删除所有元素均为0的列并输出剩下的矩阵
+X_db <- X_db[, !zero_cols_idx]
+D_2 <- X_db * w
+quadratic_function <- function(hbeta) {
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result<- sqrt(result)
+  return(result)
+}
+# 使用优化函数找到最小值和对应的位置
+result <- optim( vector("logical", length = ( ncol(X)*2 )   ) * 1,          quadratic_function)
+# 输出最优值和最优位置
+cat("最小值：", result$value, "\n")
+cat("最优位置：", result$par, "\n")
+hbeta_2_haj <- result$par
+var_Ours_X_haj_plus_lin <- result$value
+Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+print(Ours_X_haj_plus_lin)
+
+
+
+
+
+res <- tibble(Leung, Gau_naive, Gao_F, Gao_L, Ours_X_haj_plus, Ours_G_haj_plus, Ours_X_haj_plus_lin,Ours_G_haj_plus_lin, var_Leung, var_Gao_naive_plus, var_Gao_F_plus,  var_Gao_L_plus,  
+              var_Ours_X_haj_plus, var_Ours_G_haj_plus, var_Ours_X_haj_plus_lin, var_Ours_G_haj_plus_lin)
+
+print(res, n = Inf, width = Inf)
+
+
+
+
+
+
+
 
 
 
