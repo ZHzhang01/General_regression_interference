@@ -157,36 +157,27 @@ orth_coef_haj_lin <- mom_mat[, 2:(5+4)] / mom_mat[, 1]
 
 
 
-
-
-
 paste("orth_coef:", orth_coef)
 
 #we compute the ground truth:
 tau <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/pscore1-Y*(1-T_vec)/pscore0
   return(mean(D))
 }) %>% mean()
 
 tau_haj <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/(pscore1*mean(T_vec/pscore1))-Y*(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   # w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   return(mean(D))
 }) %>% mean()
 
-
-
-
-
-
-
 sum <- 0
 
 sim_res<- map_dfr(1:100, ~{
   sum <- (sum+1); print("sum:"); print(sum)
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z); X_aug <- get_X(X,Z,G)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z); X_aug <- get_X(X,Z,G)
   T_vec <- get_T(Z)
   w <- T_vec/pscore1-(1-T_vec)/pscore0
   w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
@@ -211,10 +202,52 @@ sim_res<- map_dfr(1:100, ~{
   
   
   
-
+  #We start to construct our general auxiliary methods:
+  X_db <- X_aug - (w) * (orth_coef)  #it is n*4;  n*1,  n*4
+  X_db <- cbind(X_db, 1)
+  # X_db <- cbind(X_db)
+  # D_2 <- scale(X_db*w, scale = FALSE)
+  D_2 <- X_db * w
+  #拓展到interaction时候优化要重新处理
+  hbeta_2 <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung)) #here we should use the new variance estimator:
+  Ours_G_ht_plus <- mean((Y-X_db%*%hbeta_2)*w) 
+  var_Ours_G_ht_plus <- t(D-D_2%*%hbeta_2-Ours_G_ht_plus)%*%A_p%*%(D-D_2%*%hbeta_2-Ours_G_ht_plus)/n^2 %>% as.vector()
+  # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
+  coverage_Ours_G_ht_plus <- abs(Ours_G_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus)
   
   
-
+  
+  X_db <- X_aug - w_haj * (orth_coef_haj)  #it is n*4;  n*1,  n*4
+  # D_2 <- scale(X_db*w, scale = FALSE) 
+  D_2 <- X_db * w
+  hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+  Ours_G_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+  # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
+  var_Ours_G_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  coverage_Ours_G_haj_plus <- abs(Ours_G_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus)
+  
+  
+  
+  #We also consider G == X:
+  X_db <- X  #it is n*4;  n*1,  n*4
+  X_db <- cbind(X_db, 1)
+  # D_2 <- scale(X_db*w, scale = FALSE)
+  D_2 <- X_db * w
+  hbeta_2 <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung)) #here we should use the new variance estimator:
+  Ours_X_ht_plus <- mean((Y-X_db%*%hbeta_2)*w) 
+  #I have done here: compute the var and coverage:
+  # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
+  var_Ours_X_ht_plus <- t(D-D_2%*%hbeta_2-Ours_X_ht_plus)%*%A_p%*%(D-D_2%*%hbeta_2-Ours_X_ht_plus)/n^2 %>% as.vector()
+  coverage_Ours_X_ht_plus <- abs(Ours_X_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus)
+  
+  X_db <- X  #it is n*4;  n*1,  n*4
+  D_2 <- X_db * w
+  hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+  Ours_X_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+  # var_Ours_X_ht_plus <- t(D-D_2%*%hbeta_2-Leung)%*%A_p%*%(D-D_2%*%hbeta_2-Leung)/n^2 %>% as.vector()
+  var_Ours_X_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
+  coverage_Ours_X_haj_plus <- abs(Ours_X_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus)
   
   
   
@@ -224,6 +257,7 @@ sim_res<- map_dfr(1:100, ~{
   X_db <- X_db - w * (orth_coef_lin)  #it is n*4;  n*1,  n*4
   # X_db <- cbind(X_db,2) #5个维度
   X_db <- X_db[, -(5:6)]
+  X_db <- cbind(X_db,1)
   # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
   D_2 <- X_db * w
   # D <- Y*w
@@ -234,7 +268,7 @@ sim_res<- map_dfr(1:100, ~{
     return(result)
   }
   # 使用优化函数找到最小值和对应的位置
-  result <- optim( vector("logical", length = 2*4-2    ) * 1,          quadratic_function)
+  result <- optim( vector("logical", length = 2*4-2 +1   ) * 1,          quadratic_function)
   # 输出最优值和最优位置
   cat("最小值：", result$value, "\n")
   cat("最优位置：", result$par, "\n")
@@ -267,6 +301,8 @@ sim_res<- map_dfr(1:100, ~{
   # var_Ours_G_ht_plus_lin <- t(D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin  ) %*%A_p %*% (D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin )/n^2 %>% as.vector()
   # # coverage_Ours_G_ht_plus_lin <- abs(Ours_G_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus_lin)
   # # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
+  
+  
   
   
   
@@ -306,12 +342,118 @@ sim_res<- map_dfr(1:100, ~{
   # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
   
   
- 
   
   
-  return(tibble( Leung, Ours_G_ht_plus_lin, Ours_G_haj_plus_lin, 
-                 var_Leung, var_Ours_G_ht_plus_lin, var_Ours_G_haj_plus_lin,
-                coverage_Leung, coverage_Ours_G_ht_plus_lin, coverage_Ours_G_haj_plus_lin ))
+  
+  #Moreover, we use the lin's method!  X+HT+lin； Lin的第三种
+  # X_db <- X  #it is n*4;  n*1,  n*4
+  # X_db <- cbind(X_db,1) #5个维度
+  # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
+  # D_2 <- X_db * w
+  # # D <- Y * w
+  # #拓展到interaction时候优化要重新处理
+  # quadratic_function <- function(hbeta) {
+  #   result <- t(D- D_2%*%hbeta  -Leung ) %*% A_p %*% (D- D_2%*%hbeta  -Leung )/n^2 %>% as.vector()
+  #   result<- sqrt(result)
+  #   return(result)
+  # }
+  # # 使用优化函数找到最小值和对应的位置
+  # result <- optim( vector("logical", length = 2*2    ) * 1,          quadratic_function)
+  # # 输出最优值和最优位置
+  # cat("最小值：", result$value, "\n")
+  # cat("最优位置：", result$par, "\n")
+  # hbeta_2_ht <- result$par
+  # var_Ours_X_ht_plus_lin <- result$value
+  # var_Ours_X_ht_plus_lin <- var_Ours_X_ht_plus_lin * var_Ours_X_ht_plus_lin #easy for computing;
+  # Ours_X_ht_plus_lin <- mean((Y-X_db%*%hbeta_2_ht)*w)
+  # 
+  # hbeta_2_ht <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung)) #here we should use the new variance estimator:
+  # Ours_X_ht_plus_lin <- mean((Y-X_db%*%hbeta_2_ht)*w)
+  # var_Ours_X_ht_plus_lin <- t(D-D_2%*%hbeta_2_ht-Leung)%*%A_p%*%(D-D_2%*%hbeta_2_ht-Leung)/n^2 %>% as.vector()
+  # # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
+  # coverage_Ours_X_ht_plus_lin <- abs(Ours_X_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus_lin)
+  #Moreover, we use the lin's method!  X+Haj+lin/有问题，完全仿照最后对的试一下
+  X_db <- X #it is n*4;  n*1,  n*4
+  # X_db <- cbind(X_db, 1)
+  # D_2 <- scale(X_db*w, scale = FALSE) 
+  X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
+  X_db <- cbind(X_db, 1)
+  D_2 <- X_db * w
+  # D_2 <- scale(X_db*w, scale = FALSE) 
+  hbeta_2_ht <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung    )) #here we should use the new variance estimator:
+  Ours_X_ht_plus_lin <- mean((Y-X_db%*%hbeta_2_ht)*w)
+  # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
+  var_Ours_X_ht_plus_lin <- t(D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin  ) %*%A_p %*% (D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin )/n^2 %>% as.vector()
+  coverage_Ours_X_ht_plus_lin <- abs(Ours_X_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus_lin)
+  # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
+  
+  
+  
+  
+  
+  
+  
+  
+  #Moreover, we use the lin's method!  X+Haj+lin；lin的第四种
+  X_db <- X #it is n*4;  n*1,  n*4
+  # D_2 <- scale(X_db*w, scale = FALSE) 
+  X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
+  D_2 <- X_db * w
+  hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+  Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
+  # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
+  var_Ours_X_haj_plus_lin <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  coverage_Ours_X_haj_plus_lin <- abs(Ours_X_haj_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus_lin)
+  # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  lm_haj <- lm(Y~1+T_vec+T_vec:X, w = T_vec/pscore1+(1-T_vec)/pscore0)
+  w <- T_vec/pscore1+(1-T_vec)/pscore0
+  e_haj <- lm_haj %>% resid(); Gao_L <- lm_haj %>% coef() %>% .[2]
+  C_haj <- cbind(1,T_vec, T_vec*X)
+  var_Gao_L <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  var_Gao_L_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  #最好用我们的方案
+  coverage_Gao_L <- abs(Gao_L-tau)<=qnorm(0.975)*sqrt(var_Gao_L)
+  
+  
+  lm_haj <- lm(Y~1+T_vec+X, w = T_vec/pscore1+(1-T_vec)/pscore0)
+  w <- T_vec/pscore1+(1-T_vec)/pscore0
+  e_haj <- lm_haj %>% resid(); Gao_F <- lm_haj %>% coef() %>% .[2]
+  C_haj <- cbind(1,T_vec,X)
+  var_Gao_F <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  var_Gao_F_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  coverage_Gao_F_plus <- abs(Gao_F-tau)<=qnorm(0.975)*sqrt(var_Gao_F_plus)
+  
+  
+  lm_haj <- lm(Y~1+T_vec, w = T_vec/pscore1+(1-T_vec)/pscore0)
+  w <- T_vec/pscore1+(1-T_vec)/pscore0
+  e_haj <- lm_haj %>% resid(); Gao_naive <- lm_haj %>% coef() %>% .[2]
+  C_haj <- cbind(1,T_vec)
+  var_Gao_naive <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  var_Gao_naive_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  coverage_Gao_naive_plus <- abs(Gao_naive-tau)<=qnorm(0.975)*sqrt(var_Gao_naive_plus)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return(tibble(Leung, Gao_naive, Gao_F, Gao_L,  Ours_G_ht_plus, Ours_G_haj_plus, Ours_X_ht_plus, Ours_X_haj_plus, Ours_G_ht_plus_lin, Ours_G_haj_plus_lin, Ours_X_ht_plus_lin, Ours_X_haj_plus_lin, 
+                var_Leung_plus, var_Gao_naive_plus, var_Gao_F_plus, var_Gao_L_plus, var_Ours_G_ht_plus, var_Ours_G_haj_plus, var_Ours_X_ht_plus, var_Ours_X_haj_plus, var_Ours_G_ht_plus_lin, var_Ours_G_haj_plus_lin, var_Ours_X_ht_plus_lin, var_Ours_X_haj_plus_lin, 
+                coverage_Leung, coverage_Gao_naive_plus, coverage_Gao_F_plus, coverage_Gao_L, coverage_Ours_G_ht_plus, coverage_Ours_G_haj_plus, coverage_Ours_X_ht_plus, coverage_Ours_X_haj_plus, coverage_Ours_G_ht_plus_lin, coverage_Ours_G_haj_plus_lin, coverage_Ours_X_ht_plus_lin, coverage_Ours_X_haj_plus_lin  ))
 })
 
 
@@ -332,11 +474,11 @@ sim_res<- map_dfr(1:100, ~{
 
 print("tau:"); print(tau)
 # sim_res %>% summarise_all(mean)  %>% as.data.frame()
-print("Estimation:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[1:3]) 
+print("Estimation:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[1:12]) 
 # sim_res %>% summarise_all(sd)  %>% as.data.frame()
-print("practical sd:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(3+1):(2*3)]) 
-print("practical coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*3+1):(3*3)]) 
-print("oracle sd:"); print((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[1:3]) 
+print("practical sd:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(12+1):(12*2)]) 
+print("practical coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*12+1):(3*12)]) 
+print("oracle sd:"); print((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[1:12]) 
 
 
 # warnings()
