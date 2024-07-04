@@ -105,7 +105,7 @@ check_ids_exists <- function(row) {
   all(row %in% filtered_data$ex_name)
 }
 # 对每一行进行判断，保留同时存在的行
-adj_filter <- user_data[apply(user_data, 1, check_ids_exists), ]
+adj_filter <- user_data[(user_data, 1, check_ids_exists), ]
 # 输出最终结果
 print(adj_filter)
 
@@ -608,7 +608,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 X_db <- X_db - w_haj * orth_coef_haj_lin
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
-zero_cols_idx <- apply(X_db, 2, function(x) all(X_db == 0))
+zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 # 删除所有元素均为0的列并输出剩下的矩阵
 X_db <- X_db[, !zero_cols_idx]
 D_2 <- (X_db * w)
