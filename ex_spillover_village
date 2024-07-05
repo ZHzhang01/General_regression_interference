@@ -682,7 +682,6 @@ print(var_Ours_X_haj_plus)
 #fourth case:
 X_aug <- X #we revise it!
 X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
-X_db <- X_db - w_haj * orth_coef_haj_lin
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
 zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
@@ -711,9 +710,19 @@ print(Ours_X_haj_plus_lin)
 res <- tibble(Leung, Gau_naive, Gao_F, Gao_L, Ours_X_haj_plus, Ours_G_haj_plus, Ours_X_haj_plus_lin,Ours_G_haj_plus_lin, var_Leung, var_Gao_naive_plus, var_Gao_F_plus,  var_Gao_L_plus,  
               var_Ours_X_haj_plus, var_Ours_G_haj_plus, var_Ours_X_haj_plus_lin, var_Ours_G_haj_plus_lin)
 
+
+
 print(res, n = Inf, width = Inf)
 
 
+# 指定要保存的文件路径
+file_path <- "result.txt"
+
+# 将数据写入文本文件
+write.table(res, file = "/Users/zhangzhiheng/regression_interference/result.txt", col.names = FALSE)
+
+# 提示数据已成功写入文件
+cat("数据已成功写入文本文件:", file_path, "\n")
 
 
 
