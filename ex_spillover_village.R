@@ -6,7 +6,7 @@ library(Matrix)
 library(igraph)
 library(tidyverse)
 library(stringdist)
-control <- list(abstol = 1e-10, reltol = 1e-10) 
+
 #真实实验里面是HT的分母是略微有偏的；
 
 #此外把two-side1换成two-side值得尝试
@@ -37,7 +37,7 @@ user_data_new <- user_data_new[complete.cases(user_data_new), ]
 for (i in 1:nrow(filtered_data)) {
   target_id <- filtered_data$ex_name[i]
   neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
-  
+
   #对邻居节点进行预处理，筛选出在analysis文件的节点
   #case 1
   if (length(neighbor_id) > 0) {
@@ -57,8 +57,8 @@ for (i in 1:nrow(filtered_data)) {
     cat("UserID1:", target_id, "has no neighbor in user_data2\n")
     to_remove <- c(to_remove, i)
   }
-  
-  
+
+
 }
 filtered_data <- filtered_data[-to_remove,]
 #should check whether there exists neighbors attending the first round session:
@@ -69,8 +69,8 @@ to_remove <- c()
 
 
 for (i in 1:nrow(filtered_data)){
-  
-  
+
+
   target_id <- filtered_data$ex_name[i]
   neighbor_id <- X0422twoside$network_id[X0422twoside$id == target_id]
   #之前已经可以保证在邻居id在analysis文件中的个数>0;
@@ -83,17 +83,17 @@ for (i in 1:nrow(filtered_data)){
       }
       # tempt <- 1
     }
-    
+
     # if (data$ex_delay[data$ex_name == target_id] == 0){
     #   tempt <- 1 #itself is in the fist round.
     # }
     #需要包括自己吗？
   }
-  
+
   if (tempt == 0){
     to_remove <- c(to_remove, i)
   }
-  
+
 }
 
 filtered_data <- filtered_data[-to_remove,]
@@ -225,8 +225,8 @@ for (i in 1: nrow(filtered_data)){
       neighbor_id <- neighbor_id[ -neighbor_id[s] ]
     }
   }
-  
-  
+
+
   pscore0[i] <- pbinom(0 ,size = length(neighbor_id) - rowSums(ex_adj_matrix), prob = 0.25)
   # pscore0[i] <- pbinom(0 ,size = (rowSums(ex_adj_matrix)[i]-1), prob = 0.25)
   #neighborhood 必须要有 delay = 0, intensive = 1的
@@ -267,27 +267,27 @@ Gau_naive <- (mean(D_haj))
 
 
 # #here it is right. HT:variance
-# A <- ((ex_adj_matrix %*% ex_adj_matrix %*% ex_adj_matrix )>0)*1; temp <- eigen(A);  A <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors)
+# A <- ((ex_adj_matrix %*% ex_adj_matrix %*% ex_adj_matrix )>0)*1; temp <- eigen(A);  A_p <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors)
 
 
 A <- ((symmetric_matrix %*% symmetric_matrix %*% symmetric_matrix)>0)*1; temp <- eigen(A);  A_p <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors)
 
 
-var_Leung <- t(D-Leung)%*%A%*%(D-Leung)/n^2 %>% as.vector()   #here A is the adjacent matrix. I have done here.
+var_Leung <- t(D-Leung)%*%A_p%*%(D-Leung)/n^2 %>% as.vector()   #here A is the adjacent matrix. I have done here.
 var_Leung <- sqrt(var_Leung)
 
 #here it is right: Haj:variance
 lm_haj <- lm(Y~1+T_vec, w = T_vec/pscore1+(1-T_vec)/pscore0)
 e_haj <- lm_haj %>% resid()
 C_haj <- cbind(1,T_vec); w <- T_vec/pscore1-(1-T_vec)/pscore0
-# var_Gao_naive_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+# var_Gao_naive_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
 # var_Gao_naive_plus <- sqrt(var_Gao_naive_plus)
 #add definition:
 w_1 <- T_vec/pscore1
 w_0 <- (1-T_vec)/pscore0
 w_haj_1 <- T_vec/(pscore1*mean(T_vec/pscore1))
 w_haj_0 <- (1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
-var_Gao_naive_plus <- t(D -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D-(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Gao_naive_plus <- t(D -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D-(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Gao_naive_plus <- sqrt(var_Gao_naive_plus)
 
 
@@ -304,7 +304,7 @@ understand <- c()
 
 for (i in 1:nrow(filtered_data)) {
   target_id <- filtered_data$ex_name[i]
-  
+
   agpop_element <- X0422analysis$agpop[X0422analysis$id == target_id];   householdsize <- c(householdsize, agpop_element);
   rice_area_element <- X0422analysis$ricearea_2010[X0422analysis$id == target_id]; ricearea <- c(ricearea, rice_area_element);
   rice_inc_element <- X0422analysis$rice_inc[X0422analysis$id == target_id] ;riceinc <- c(riceinc, rice_inc_element);
@@ -385,11 +385,11 @@ for (i in 1: nrow(filtered_data)){
 
 ourG <- cbind(X, village_num)
 ourG <- scale(ourG)
-
-
-
-
-
+  
+  
+  
+  
+  
 
 
 
@@ -400,7 +400,7 @@ C_haj <- cbind(1,T_vec,X)
 w = T_vec/pscore1+(1-T_vec)/pscore0
 #I have done here::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # var_Gao_F <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
-# var_Gao_F_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+# var_Gao_F_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
 # var_Gao_F_plus <- sqrt(var_Gao_F_plus)
 w = T_vec/pscore1-(1-T_vec)/pscore0
 # D_2 <- scale(X*w, scale = FALSE)
@@ -412,7 +412,7 @@ for (i in (2+1):(2+ncol(X))){
 beta_gao_f[is.na(beta_gao_f)] <- 0
 beta_gao_f <- matrix(beta_gao_f)
 # beta_gao_f <- matrix(cbind( lm_haj %>% coef() %>% .[3],lm_haj %>% coef() %>% .[4],lm_haj %>% coef() %>% .[5],  lm_haj %>% coef() %>% .[6],lm_haj %>% coef() %>% .[7],lm_haj %>% coef() %>% .[8] ))
-var_Gao_F_plus <- t(D- D_2%*%beta_gao_f  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%beta_gao_f  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Gao_F_plus <- t(D- D_2%*%beta_gao_f  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%beta_gao_f  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Gao_F_plus <- sqrt(var_Gao_F_plus)
 
 
@@ -424,7 +424,7 @@ lm_haj <- lm(Y~1+T_vec + X +T_vec*X, w = T_vec/pscore1+(1-T_vec)/pscore0)
 e_haj <- lm_haj %>% resid(); Gao_L <- lm_haj %>% coef() %>% .[2]
 C_haj <- cbind(1,T_vec, X,T_vec*X)
 # var_Gao_L <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
-# var_Gao_L_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+# var_Gao_L_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
 # var_Gao_L_plus <- sqrt(var_Gao_L_plus)
 X_lin <- cbind(X * T_vec, X * (1-T_vec))
 w = T_vec/pscore1-(1-T_vec)/pscore0
@@ -448,7 +448,7 @@ beta_gao_lin2[is.na(beta_gao_lin2)] <- 0
 beta_gao_lin3[is.na(beta_gao_lin3)] <- 0
 beta_gao_lin <- matrix(cbind(beta_gao_lin3, beta_gao_lin2))
 # beta_gao_lin <- matrix(c( lm_haj %>% coef() %>% .[4], lm_haj_inverse %>% coef() %>% .[4]))
-var_Gao_L_plus <- t(D- D_2%*%beta_gao_lin  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%beta_gao_lin  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Gao_L_plus <- t(D- D_2%*%beta_gao_lin  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%beta_gao_lin  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Gao_L_plus <- sqrt(var_Gao_L_plus)
 
 
@@ -468,7 +468,7 @@ var_Gao_L_plus <- sqrt(var_Gao_L_plus)
 #we aim to calculate the coefficient:
 get_X <- function(X,Z,G){
   # return(matrix(c(Z,drop(G%*%Z),X,drop(G%*%X)), nrow=n, ncol = 4))      #it is a generalized variable constructed by (Z, G*Z, X, G*X);
-  
+
   return(matrix(c(Z,drop(G%*%Z),     X,drop(G%*%X)), nrow=n, ncol = 1+1+ncol(X) * 2))
 }
 
@@ -477,8 +477,8 @@ get_T <- function(Z){
   for (i in 1: nrow(filtered_data)){
     target_id <- filtered_data$ex_name[i]
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
-    
-    
+
+
     #neighborhood 必须要有 delay = 0, intensive = 1的
     for (s in 1: length(neighbor_id)){
       if (neighbor_id[s] %in% X0422analysis$id){
@@ -486,11 +486,11 @@ get_T <- function(Z){
         {TZ[i] <- 1}
       }
     }
-    
+
   }
-  
-  
-  
+
+
+
   return(TZ)
 }
 
@@ -526,7 +526,7 @@ for(i in 1:100){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.25)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
-  
+
   subset_tempt <- X0422analysis[X0422analysis$id %in% filtered_data$ex_name,]
   Z_sub <- subset_tempt$tempt_Z
   w_haj <- TZ/(pscore1*mean(TZ/pscore1))-(1-TZ)/(pscore0*mean((1-TZ)/pscore0)) #They are both $n*1$ vectors;
@@ -536,7 +536,7 @@ for(i in 1:100){
   
   X_aug_new <- get_X(ourG, Z_sub, G)
   mom_mat_new <- mom_mat_new + c(w_haj^2, X_aug_new*w_haj)
-}
+  }
 orth_coef_haj <- mom_mat[, 2: (1 + 2+2*ncol(X))] / mom_mat[, 1]
 orth_coef_haj_new <- mom_mat_new[, 2: (1 + 2+2*ncol(ourG))] / mom_mat[, 1]
 #######################################################################################加上Lin's method
@@ -563,7 +563,7 @@ for(i in 1:100){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.25)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
-  
+
   subset_tempt <- X0422analysis[X0422analysis$id %in% filtered_data$ex_name,]
   Z_sub <- subset_tempt$tempt_Z
   w_haj <- TZ/(pscore1*mean(TZ/pscore1))-(1-TZ)/(pscore0*mean((1-TZ)/pscore0)) #They are both $n*1$ vectors;
@@ -571,14 +571,14 @@ for(i in 1:100){
   X_aug <- get_X(X,Z_sub, G ) #in each simulation, we need compute the new $X_aug$ (n*4);
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
   mom_mat <- mom_mat + c(w_haj^2, X_aug_lin*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
-  
+
   X_aug_new <- get_X(ourG,Z_sub, G ) #in each simulation, we need compute the new $X_aug$ (n*4);
   X_aug_lin_new <- cbind(X_aug_new * T_vec, X_aug_new * (1-T_vec))
   mom_mat_new <- mom_mat_new + c(w_haj^2, X_aug_lin_new*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
   
   
   
-}
+  }
 orth_coef_haj_lin <- mom_mat[, 2:(1+ (2+2*ncol(X) )*2 )] / mom_mat[, 1]
 orth_coef_haj_lin_new <- mom_mat_new[, 2:(1+ (2+2*ncol(ourG) )*2 )] / mom_mat[, 1]
 
@@ -633,7 +633,7 @@ zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
@@ -644,9 +644,9 @@ result1 <- optim( matrix(c(0,0, beta_gao_f, rep(0, ncol(X)))) ,         quadrati
 cat("最小值：", min(result0$value,result1$value) , "\n")
 cat("最优位置：", result0$par, "\n")
 hbeta_2_haj <- result0$par
-# hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_G_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
-var_Ours_G_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_G_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Ours_G_haj_plus <- sqrt(var_Ours_G_haj_plus)
 print(var_Ours_G_haj_plus)
 
@@ -660,7 +660,7 @@ X_db_new <- X_aug_new - w_haj * (orth_coef_haj_new)  #it is n*4;  n*1,  n*4
 # D_2 <- scale(X_db*w, scale = FALSE)
 D_2 <- X_db_new * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
@@ -671,14 +671,14 @@ result1 <- optim( matrix(c(0,0, beta_gao_f,0, rep(0, ncol(ourG)))) ,         qua
 cat("最小值：", min(result0$value,result1$value) , "\n")
 cat("最优位置：", result0$par, "\n")
 hbeta_2_haj <- result0$par
-# hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_G_haj_plus_new <- mean((Y-X_db_new%*%hbeta_2_haj)*w_haj)
-var_Ours_G_haj_plus_new <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_G_haj_plus_new <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Ours_G_haj_plus_new <- sqrt(var_Ours_G_haj_plus_new)
 print(var_Ours_G_haj_plus_new)
 ##############################################################################
-
-
+  
+  
 
 
 #second case
@@ -695,14 +695,13 @@ zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-
 result0 <- optim( matrix(c(0,0, beta_gao_lin[1:(ncol(X)), ], rep(0,ncol(X)),    0,0, beta_gao_lin[(ncol(X)+1):(ncol(X)*2), ], rep(0,ncol(X))) )    ,    quadratic_function, control = control)
-result1 <- optim(  vector("logical", length = ncol(D_2)   ) * 1    ,    quadratic_function, control = control)
+result1 <- optim(  vector("logical", length = ncol(D_2)   ) * 1    ,    quadratic_function)
 result <- min(result0$value, result1$value)
 # 输出最优值和最优位置
 cat("最小值：", result, "\n")
@@ -722,20 +721,20 @@ X_db_new <- X_db_new - w_haj * (orth_coef_haj_lin_new)  #it is n*4;  n*1,  n*4
 # D_2 <- scale(X_db*w, scale = FALSE)
 D_2 <- X_db_new * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result0 <- optim( matrix(c(0,0, beta_gao_lin[1:(ncol(X)), ],0, rep(0,ncol(ourG)),    0,0, beta_gao_lin[(ncol(X)+1):(ncol(X)*2), ], 0,rep(0,ncol(ourG))) )    ,    quadratic_function, control = control)
-result1 <- optim(  vector("logical", length = ncol(D_2)   ) * 1    ,    quadratic_function)
+result0 <- optim( matrix(c(0,0, beta_gao_lin[1:(ncol(X)), ],0, rep(0,ncol(ourG)),    0,0, beta_gao_lin[(ncol(X)+1):(ncol(X)*2), ], 0,rep(0,ncol(ourG))) )    ,    quadratic_function)
+result1 <- optim(  vector("logical", length = ncol(D_2)   ) * 1    ,    quadratic_function, control = control)
 # 输出最优值和最优位置
 cat("最小值：", min(result0$value,result1$value) , "\n")
 cat("最优位置：", result0$par, "\n")
 hbeta_2_haj <- result0$par
-# hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_G_haj_plus_lin_new <- mean((Y-X_db_new%*%hbeta_2_haj)*w_haj)
-var_Ours_G_haj_plus_lin_new <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_G_haj_plus_lin_new <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Ours_G_haj_plus_lin_new <- sqrt(var_Ours_G_haj_plus_lin_new)
 print(var_Ours_G_haj_plus_lin_new)
 ##############################################################################
@@ -753,7 +752,7 @@ zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
@@ -763,9 +762,9 @@ result <- optim( beta_gao_f,          quadratic_function, control = control)
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj <- result$par
-# hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
+# hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_X_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
-var_Ours_X_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+var_Ours_X_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
 var_Ours_X_haj_plus <- sqrt(var_Ours_X_haj_plus)
 print(var_Ours_X_haj_plus)
 
@@ -780,7 +779,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A_p %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
   return(result)
 }
@@ -789,60 +788,10 @@ result <- optim( beta_gao_lin,          quadratic_function, control = control)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
-hbeta_2_haj_4 <- result$par
+hbeta_2_haj <- result$par
 var_Ours_X_haj_plus_lin <- result$value
-Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj_4)*w_haj)
+Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
 print(Ours_X_haj_plus_lin)
-
-
-
-
-
-
-
-
-
-#second case+replicate
-#consider the G+haj+sat:
-#we consider the (X_db * T_vec, X_db * (1-T_vec)):
-X_aug <- get_X(X,treat1, G ) #we revise it!
-X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
-X_db <- X_db - w_haj * orth_coef_haj_lin
-# X_db[, (2+1):(2+ncol(X))] <- X*T_vec; X_db[, (ncol(X_aug)+2+1):(ncol(X_aug)+2+ncol(X))] <- X * (1-T_vec) 
-# X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
-# D_2 <- scale(X_db*w, scale = FALSE)
-zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# 删除所有元素均为0的列并输出剩下的矩阵
-X_db <- X_db[, !zero_cols_idx]
-D_2 <- X_db * w
-quadratic_function <- function(hbeta) {
-  result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
-  result<- sqrt(result)
-  return(result)
-}
-# 使用优化函数找到最小值和对应的位置
-
-result0 <- optim( matrix(c(0,0, hbeta_2_haj_4[1:(ncol(X)), ], rep(0,ncol(X)),    0,0, hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0,ncol(X))) )    ,    quadratic_function, control = control)
-# result1 <- optim(  vector("logical", length = ncol(D_2)   ) * 1    ,    quadratic_function)
-# result <- min(result0$value, result1$value)
-# 输出最优值和最优位置
-
-hbeta_2_haj0 <- result0$par
-# hbeta_2_haj1 <- result1$par
-var_Ours_G_haj_plus_lin <- result0$value
-Ours_G_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj0)*w_haj)
-# Ours_G_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj1)*w_haj)
-print(Ours_G_haj_plus_lin)
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -867,6 +816,4 @@ cat("数据已成功写入文本文件:", file_path, "\n")
 
 
 
-
-
-
+##################################################################################################################################################
