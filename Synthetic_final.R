@@ -3,18 +3,8 @@ library(tidyverse)
 library(stringdist)
 # library(dplyr)
 
-#to do list:
-#re-name and add new x-based general-variable estimator: add Gao_F; Ours_X_ht_plus; Ours_X_haj_plus; 1+3+4, also for var and coverage;
-#add oracle and naive coverage: naive means dependence = 0 and estimate the i.i.d standard errors
 
-
-#first， HT should add a intersection; (its ok; and delete non-necessary scale!)
-#second, should report the iteraction result; and revise our presentation! (ok!)
-#third, add the oracle average (ok) and naive std ;
-#fourth, should claim G is better than X! (ok)
-
-
-n <- 800
+n <- 400
 r1 <- 0.5 
 
 ball_vol <- function(d,r){
@@ -29,58 +19,50 @@ r <- (1 / ball_vol(2, 1) / n)^{1/2}  # RGG parameter calculation，
 # Create adjacency matrix based on distances and threshold r
 E <- dist_matrix <= r
 E <- (E) * 1
-
-
+for (i in 1:nrow(E)){
+  E[i,i] <- 0
+}
 print(E)
-# Fill diagonal with zeros to avoid self-loops
-
-# #尝试性改动：
-# for (i in 1: ncol(E)){
-#   E[i,i] <- 0
-# }
-
 
 # 计算矩阵的行和
-row_sums <- rowSums(E)
+# row_sums <- rowSums(E)
 # 对非负整数矩阵进行行和归一化
 
-
-
-
-
-
-
-
-
-
-
-num_nb <- rowSums(E)
 # transform the objective
 g <- graph_from_adjacency_matrix(as.matrix(E), mode = "undirected")
 # compute the average path length
 avg_path_length <- mean_distance(g)
-G <- E/rowSums(E)
-# Compute errors with random noise
-errors <- rnorm(n) + (positions[,1] - 0.5)
+
+
 #we need to make sure the degree is at least 1, naturally
 #To avoid the mistake:
-rows_all_zero <- which(apply(G, 1, function(row) all(row == 0)))
-cols_all_zero <- which(apply(G, 2, function(col) all(col == 0)))
+rows_all_zero <- which(apply(E, 1, function(row) all(row == 0)))
+cols_all_zero <- which(apply(E, 2, function(col) all(col == 0)))
 print("全部都是零元素的行索引:")
 print(rows_all_zero)
 print("全部都是零元素的列索引:")
 print(cols_all_zero)
-# G <- G[-rows_all_zero, -cols_all_zero]
+E <- E[-rows_all_zero, -cols_all_zero]
+positions <- positions[-rows_all_zero, ]
 # if (length(rows_all_zero) > 0) {
-#   G <- G[-rows_all_zero, ]
+#   E <- E[-rows_all_zero, ]
 # }
 # if (length(cols_all_zero) > 0) {
-#   G <- G[, -cols_all_zero]
+#   E <- E[, -cols_all_zero]
 # }
-print(G)
+print(E)
+num_nb <- rowSums(E)
+G <- E/rowSums(E)
+n <- ncol(G)
 
-#we need to use a new generation: linear-in-means and non-linear model;
-X <-rnorm(n) %>% scale(scale = FALSE); epsilon <- errors #the normalized n-dimensional vector corresponding to each node to generate $X$ and $\epsilon$.
+
+
+# Compute errors with random noise
+errors <- rnorm(n) + (positions[,1] - 0.5)
+X <-rnorm(n) %>% scale(scale = FALSE); epsilon <- errors
+
+
+
 
 #now it is to generate the linear-in-means model:
 get_Y <- function(Z){
@@ -98,10 +80,11 @@ get_Y_nonlinear <- function(Z){
 }
 
 get_T <- function(Z){
-  return(drop(E%*%Z > 0) *1)
+  return(drop(E%*%Z > floor(num_nb/2)) *1)
 }
 
-pscore0 <- pbinom(0 ,size = num_nb, prob = r1); pscore1 <- 1-pscore0
+# pscore0 <- pbinom(0 ,size = num_nb, prob = r1); pscore1 <- 1-pscore0
+pscore0 <- pbinom(floor(num_nb/2) ,size = num_nb, prob = r1); pscore1 <- 1-pscore0 #we add a new test!
 
 
 A <- ((E %*% E)>0)*1; temp <- eigen(A);  A_p <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors) 
@@ -161,13 +144,13 @@ paste("orth_coef:", orth_coef)
 
 #we compute the ground truth:
 tau <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/pscore1-Y*(1-T_vec)/pscore0
   return(mean(D))
 }) %>% mean()
 
 tau_haj <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/(pscore1*mean(T_vec/pscore1))-Y*(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   # w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   return(mean(D))
@@ -177,7 +160,7 @@ sum <- 0
 
 sim_res<- map_dfr(1:1000, ~{
   sum <- (sum+1); print("sum:"); print(sum)
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z); X_aug <- get_X(X,Z,G)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z); X_aug <- get_X(X,Z,G)
   T_vec <- get_T(Z)
   w <- T_vec/pscore1-(1-T_vec)/pscore0
   w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
@@ -220,6 +203,7 @@ sim_res<- map_dfr(1:1000, ~{
   
   
   X_db <- X_aug - w_haj * (orth_coef_haj)  #it is n*4;  n*1,  n*4
+  # X_db <- X_aug  #we add a test!
   # D_2 <- scale(X_db*w, scale = FALSE) 
   D_2 <- X_db * w
   hbeta_2_haj <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
