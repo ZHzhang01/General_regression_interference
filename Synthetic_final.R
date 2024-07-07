@@ -10,8 +10,8 @@ library(stringdist)
 
 #first， HT should add a intersection; (its ok; and delete non-necessary scale!)
 #second, should report the iteraction result; and revise our presentation! (ok!)
-#third, add the oracle average and naive std;
-#fourth, should claim G is better than X!
+#third, add the oracle average (ok) and naive std ;
+#fourth, should claim G is better than X! (ok)
 
 
 n <- 800
@@ -25,7 +25,7 @@ ball_vol <- function(d,r){
 positions <- matrix(runif(2 * n), nrow = n, ncol = 2)
 # Calculate distance matrix
 dist_matrix <- as.matrix(dist(positions, method = "euclidean"))
-r <- (1 / ball_vol(2, 1) / n)^{1/2}  # RGG parameter calculation
+r <- (1 / ball_vol(2, 1) / n)^{1/2}  # RGG parameter calculation， 
 # Create adjacency matrix based on distances and threshold r
 E <- dist_matrix <= r
 E <- (E) * 1
@@ -114,7 +114,7 @@ get_X <- function(X,Z,G){
 
 #we aim to calculate the coefficient:
 mom_mat <- matrix(0, nrow = n, ncol = 5)
-for(i in 1:1000){
+for(i in 1:10000){
   Z <- rbinom(n, size = 1, prob = r1);  X_aug <- get_X(X,Z,G) #in each simulation, we need compute the new $X_aug$ (n*4);
   T_vec <- get_T(Z); w <- T_vec/pscore1-(1-T_vec)/pscore0 #They are both $n*1$ vectors;
   mom_mat <- mom_mat + c(w^2, X_aug*w) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
@@ -123,7 +123,7 @@ orth_coef <- mom_mat[, 2:5] / mom_mat[, 1]
 
 
 mom_mat <- matrix(0, nrow = n, ncol = 5)
-for(i in 1:1000){
+for(i in 1:10000){
   Z <- rbinom(n, size = 1, prob = r1);  X_aug <- get_X(X,Z,G) #in each simulation, we need compute the new $X_aug$ (n*4);
   T_vec <- get_T(Z); w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0)) #They are both $n*1$ vectors;
   mom_mat <- mom_mat + c(w_haj^2, X_aug*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
@@ -132,7 +132,7 @@ orth_coef_haj <- mom_mat[, 2:5] / mom_mat[, 1]
 
 #we also need to compute the iteraction debiasing procedure:
 mom_mat <- matrix(0, nrow = n, ncol = 5+4)
-for(i in 1:1000){
+for(i in 1:10000){
   Z <- rbinom(n, size = 1, prob = r1);  X_aug <- get_X(X,Z,G) #in each simulation, we need compute the new $X_aug$ (n*4);
   T_vec <- get_T(Z); w <- T_vec/pscore1-(1-T_vec)/pscore0 #They are both $n*1$ vectors;
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
@@ -141,7 +141,7 @@ for(i in 1:1000){
 orth_coef_lin <- mom_mat[, 2:(5+4)] / mom_mat[, 1]
 
 mom_mat <- matrix(0, nrow = n, ncol = 5+4)
-for(i in 1:1000){
+for(i in 1:10000){
   Z <- rbinom(n, size = 1, prob = r1);  X_aug <- get_X(X,Z,G) #in each simulation, we need compute the new $X_aug$ (n*4);
   T_vec <- get_T(Z); w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0)) #They are both $n*1$ vectors;
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
@@ -161,13 +161,13 @@ paste("orth_coef:", orth_coef)
 
 #we compute the ground truth:
 tau <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/pscore1-Y*(1-T_vec)/pscore0
   return(mean(D))
 }) %>% mean()
 
 tau_haj <- map_dbl(1:1000, ~{
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z)
   T_vec <- get_T(Z); D <- Y*T_vec/(pscore1*mean(T_vec/pscore1))-Y*(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   # w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   return(mean(D))
@@ -175,9 +175,9 @@ tau_haj <- map_dbl(1:1000, ~{
 
 sum <- 0
 
-sim_res<- map_dfr(1:100, ~{
+sim_res<- map_dfr(1:1000, ~{
   sum <- (sum+1); print("sum:"); print(sum)
-  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y(Z); X_aug <- get_X(X,Z,G)
+  Z <- rbinom(n, size = 1, prob = r1); Y <- get_Y_nonlinear(Z); X_aug <- get_X(X,Z,G)
   T_vec <- get_T(Z)
   w <- T_vec/pscore1-(1-T_vec)/pscore0
   w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
@@ -197,9 +197,10 @@ sim_res<- map_dfr(1:100, ~{
   #Here is the un-adjusted estimator:
   var_Leung <- t(D-Leung)%*%A%*%(D-Leung)/n^2 %>% as.vector();
   var_Leung_plus <- t(D-Leung)%*%A_p%*%(D-Leung)/n^2 %>% as.vector()
+  var_Leung_plus_naive <- t(D-Leung)%*%diag(n)%*%(D-Leung)/n^2 %>% as.vector()
   # is_cover_unadj_1 <- abs(Leung-tau)<=qnorm(0.975)*sqrt(var_est_unadj_1)
-  coverage_Leung <- abs(Leung-tau)<=qnorm(0.975)*sqrt(var_Leung)
-  
+  coverage_Leung <- abs(Leung-tau)<=qnorm(0.975)*sqrt(var_Leung_plus)
+  coverage_Leung_naive <- abs(Leung-tau)<=qnorm(0.975)*sqrt(var_Leung_plus_naive)
   
   
   #We start to construct our general auxiliary methods:
@@ -212,9 +213,10 @@ sim_res<- map_dfr(1:100, ~{
   hbeta_2 <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung)) #here we should use the new variance estimator:
   Ours_G_ht_plus <- mean((Y-X_db%*%hbeta_2)*w) 
   var_Ours_G_ht_plus <- t(D-D_2%*%hbeta_2-Ours_G_ht_plus)%*%A_p%*%(D-D_2%*%hbeta_2-Ours_G_ht_plus)/n^2 %>% as.vector()
+  var_Ours_G_ht_plus_naive <- t(D-D_2%*%hbeta_2-Ours_G_ht_plus)%*%diag(n)%*%(D-D_2%*%hbeta_2-Ours_G_ht_plus)/n^2 %>% as.vector()
   # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
   coverage_Ours_G_ht_plus <- abs(Ours_G_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus)
-  
+  coverage_Ours_G_ht_plus_naive <- abs(Ours_G_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus_naive)
   
   
   X_db <- X_aug - w_haj * (orth_coef_haj)  #it is n*4;  n*1,  n*4
@@ -224,8 +226,10 @@ sim_res<- map_dfr(1:100, ~{
   Ours_G_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
   # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
   var_Ours_G_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
-  coverage_Ours_G_haj_plus <- abs(Ours_G_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus)
+  var_Ours_G_haj_plus_naive <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%diag(n) %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   
+  coverage_Ours_G_haj_plus <- abs(Ours_G_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus)
+  coverage_Ours_G_haj_plus_naive <- abs(Ours_G_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus_naive)
   
   
   #We also consider G == X:
@@ -238,7 +242,9 @@ sim_res<- map_dfr(1:100, ~{
   #I have done here: compute the var and coverage:
   # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
   var_Ours_X_ht_plus <- t(D-D_2%*%hbeta_2-Ours_X_ht_plus)%*%A_p%*%(D-D_2%*%hbeta_2-Ours_X_ht_plus)/n^2 %>% as.vector()
+  var_Ours_X_ht_plus_naive <- t(D-D_2%*%hbeta_2-Ours_X_ht_plus)%*%diag(n)%*%(D-D_2%*%hbeta_2-Ours_X_ht_plus)/n^2 %>% as.vector()
   coverage_Ours_X_ht_plus <- abs(Ours_X_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus)
+  coverage_Ours_X_ht_plus_naive <- abs(Ours_X_ht_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus_naive)
   
   X_db <- X  #it is n*4;  n*1,  n*4
   D_2 <- X_db * w
@@ -247,8 +253,10 @@ sim_res<- map_dfr(1:100, ~{
   # var_Ours_X_ht_plus <- t(D-D_2%*%hbeta_2-Leung)%*%A_p%*%(D-D_2%*%hbeta_2-Leung)/n^2 %>% as.vector()
   var_Ours_X_haj_plus <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
-  coverage_Ours_X_haj_plus <- abs(Ours_X_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus)
+  var_Ours_X_haj_plus_naive <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%diag(n) %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   
+  coverage_Ours_X_haj_plus <- abs(Ours_X_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus)
+  coverage_Ours_X_haj_plus_naive <- abs(Ours_X_haj_plus - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus_naive)
   
   
   ##############################################################################################################
@@ -276,6 +284,7 @@ sim_res<- map_dfr(1:100, ~{
   Ours_G_ht_plus_lin <- mean((Y-X_db%*%hbeta_2_ht)*w)
   var_Ours_G_ht_plus_lin <- t(D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin  ) %*%A_p %*% (D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin )/n^2 %>% as.vector()
   # var_Ours_G_ht_plus_lin <- result$value
+  var_Ours_G_ht_plus_lin_naive <- t(D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin  ) %*%diag(n) %*% (D- D_2%*%hbeta_2_ht  - Ours_G_ht_plus_lin )/n^2 %>% as.vector()
   
   
   # hbeta_2 <- solve(t(D_2)%*%A_p%*%(D_2),   t(D_2)%*%A_p%*%(D-Leung)) #here we should use the new variance estimator:
@@ -284,6 +293,7 @@ sim_res<- map_dfr(1:100, ~{
   # coverage_Ours_G_ht <- abs(Ours_G_ht-tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht)
   # var_Ours_G_ht_plus_lin <- var_Ours_G_ht_plus_lin * var_Ours_G_ht_plus_lin  #for esay computing
   coverage_Ours_G_ht_plus_lin <- abs(Ours_G_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus_lin)
+  coverage_Ours_G_ht_plus_lin_naive <- abs(Ours_G_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_G_ht_plus_lin_naive)
   # #重新尝试：
   # X_db <- X_aug - (w) * (orth_coef) #it is n*4;  n*1,  n*4
   # # X_db <- cbind(X_db, 1)
@@ -337,8 +347,10 @@ sim_res<- map_dfr(1:100, ~{
   Ours_G_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
   # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
   var_Ours_G_haj_plus_lin <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  var_Ours_G_haj_plus_lin_naive <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%diag(n) %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   
   coverage_Ours_G_haj_plus_lin <- abs(Ours_G_haj_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus_lin)
+  coverage_Ours_G_haj_plus_lin_naive <- abs(Ours_G_haj_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_G_haj_plus_lin_naive)
   # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
   
   
@@ -384,7 +396,10 @@ sim_res<- map_dfr(1:100, ~{
   Ours_X_ht_plus_lin <- mean((Y-X_db%*%hbeta_2_ht)*w)
   # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
   var_Ours_X_ht_plus_lin <- t(D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin  ) %*%A_p %*% (D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin )/n^2 %>% as.vector()
+  var_Ours_X_ht_plus_lin_naive <- t(D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin  ) %*%diag(n) %*% (D- D_2%*%hbeta_2_ht  - Ours_X_ht_plus_lin )/n^2 %>% as.vector()
+  
   coverage_Ours_X_ht_plus_lin <- abs(Ours_X_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus_lin)
+  coverage_Ours_X_ht_plus_lin_naive <- abs(Ours_X_ht_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_ht_plus_lin_naive)
   # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
   
   
@@ -403,7 +418,10 @@ sim_res<- map_dfr(1:100, ~{
   Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
   # var_Ours_G_ht <- t(D-D_2%*%hbeta_1-Ours_G_ht)%*%A%*%(D-D_2%*%hbeta_1-Ours_G_ht)/n^2 %>% as.vector()
   var_Ours_X_haj_plus_lin <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A_p %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  var_Ours_X_haj_plus_lin_naive <- t(D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%diag(n) %*% (D- D_2%*%hbeta_2_haj  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
+  
   coverage_Ours_X_haj_plus_lin <- abs(Ours_X_haj_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus_lin)
+  coverage_Ours_X_haj_plus_lin_naive <- abs(Ours_X_haj_plus_lin - tau)<=qnorm(0.975)*sqrt(var_Ours_X_haj_plus_lin_naive)
   # var_Ours_G_haj_plus_lin <-  var_Ours_G_haj_plus_lin *  var_Ours_G_haj_plus_lin #为了方便计算
   
   
@@ -423,7 +441,10 @@ sim_res<- map_dfr(1:100, ~{
   var_Gao_L <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
   var_Gao_L_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
   #最好用我们的方案
-  coverage_Gao_L <- abs(Gao_L-tau)<=qnorm(0.975)*sqrt(var_Gao_L)
+  var_Gao_L_plus_naive <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%diag(n)%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  
+  coverage_Gao_L <- abs(Gao_L-tau)<=qnorm(0.975)*sqrt(var_Gao_L_plus)
+  coverage_Gao_L_naive <- abs(Gao_L-tau)<=qnorm(0.975)*sqrt(var_Gao_L_plus_naive)
   
   
   lm_haj <- lm(Y~1+T_vec+X, w = T_vec/pscore1+(1-T_vec)/pscore0)
@@ -432,8 +453,10 @@ sim_res<- map_dfr(1:100, ~{
   C_haj <- cbind(1,T_vec,X)
   var_Gao_F <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
   var_Gao_F_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
-  coverage_Gao_F_plus <- abs(Gao_F-tau)<=qnorm(0.975)*sqrt(var_Gao_F_plus)
+  var_Gao_F_plus_naive <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%diag(n)%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
   
+  coverage_Gao_F_plus <- abs(Gao_F-tau)<=qnorm(0.975)*sqrt(var_Gao_F_plus)
+  coverage_Gao_F_plus_naive <- abs(Gao_F-tau)<=qnorm(0.975)*sqrt(var_Gao_F_plus_naive)
   
   lm_haj <- lm(Y~1+T_vec, w = T_vec/pscore1+(1-T_vec)/pscore0)
   w <- T_vec/pscore1+(1-T_vec)/pscore0
@@ -441,7 +464,10 @@ sim_res<- map_dfr(1:100, ~{
   C_haj <- cbind(1,T_vec)
   var_Gao_naive <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
   var_Gao_naive_plus <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%A_p%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  var_Gao_naive_plus_naive <- solve(t(C_haj)%*%diag(w)%*%C_haj)%*%(t(C_haj)%*%diag(w)%*%diag(e_haj)%*%diag(n)%*%diag(e_haj)%*%diag(w)%*%(C_haj))%*%solve(t(C_haj)%*%diag(w)%*%C_haj) %>% .[2,2]
+  
   coverage_Gao_naive_plus <- abs(Gao_naive-tau)<=qnorm(0.975)*sqrt(var_Gao_naive_plus)
+  coverage_Gao_naive_plus_naive <- abs(Gao_naive-tau)<=qnorm(0.975)*sqrt(var_Gao_naive_plus_naive)
   
   
   
@@ -451,10 +477,14 @@ sim_res<- map_dfr(1:100, ~{
   
   
   
-  return(tibble(Leung, Gao_naive, Gao_F, Gao_L,  Ours_G_ht_plus, Ours_G_haj_plus, Ours_X_ht_plus, Ours_X_haj_plus, Ours_G_ht_plus_lin, Ours_G_haj_plus_lin, Ours_X_ht_plus_lin, Ours_X_haj_plus_lin, 
-                var_Leung_plus, var_Gao_naive_plus, var_Gao_F_plus, var_Gao_L_plus, var_Ours_G_ht_plus, var_Ours_G_haj_plus, var_Ours_X_ht_plus, var_Ours_X_haj_plus, var_Ours_G_ht_plus_lin, var_Ours_G_haj_plus_lin, var_Ours_X_ht_plus_lin, var_Ours_X_haj_plus_lin, 
-                coverage_Leung, coverage_Gao_naive_plus, coverage_Gao_F_plus, coverage_Gao_L, coverage_Ours_G_ht_plus, coverage_Ours_G_haj_plus, coverage_Ours_X_ht_plus, coverage_Ours_X_haj_plus, coverage_Ours_G_ht_plus_lin, coverage_Ours_G_haj_plus_lin, coverage_Ours_X_ht_plus_lin, coverage_Ours_X_haj_plus_lin  ))
-})
+  return(tibble(Leung, Gao_naive, Gao_F, Gao_L,  Ours_X_ht_plus, Ours_G_ht_plus,Ours_X_ht_plus_lin, Ours_G_ht_plus_lin, Ours_X_haj_plus, Ours_G_haj_plus,  Ours_X_haj_plus_lin,   Ours_G_haj_plus_lin, 
+                var_Leung_plus, var_Gao_naive_plus, var_Gao_F_plus, var_Gao_L_plus, var_Ours_X_ht_plus, var_Ours_G_ht_plus,  var_Ours_X_ht_plus_lin, var_Ours_G_ht_plus_lin, var_Ours_X_haj_plus, var_Ours_G_haj_plus, var_Ours_X_haj_plus_lin,  var_Ours_G_haj_plus_lin, 
+                coverage_Leung, coverage_Gao_naive_plus, coverage_Gao_F_plus, coverage_Gao_L,  coverage_Ours_X_ht_plus, coverage_Ours_G_ht_plus,  coverage_Ours_X_ht_plus_lin, coverage_Ours_G_ht_plus_lin, coverage_Ours_X_haj_plus, coverage_Ours_G_haj_plus,coverage_Ours_X_haj_plus_lin, coverage_Ours_G_haj_plus_lin   ,
+
+  var_Leung_plus_naive, var_Gao_naive_plus_naive, var_Gao_F_plus_naive, var_Gao_L_plus_naive, var_Ours_X_ht_plus_naive, var_Ours_G_ht_plus_naive,  var_Ours_X_ht_plus_lin_naive, var_Ours_G_ht_plus_lin_naive, var_Ours_X_haj_plus_naive, var_Ours_G_haj_plus_naive, var_Ours_X_haj_plus_lin_naive,  var_Ours_G_haj_plus_lin_naive, 
+  coverage_Leung_naive, coverage_Gao_naive_plus_naive, coverage_Gao_F_plus_naive, coverage_Gao_L_naive,  coverage_Ours_X_ht_plus_naive, coverage_Ours_G_ht_plus_naive,  coverage_Ours_X_ht_plus_lin_naive, coverage_Ours_G_ht_plus_lin_naive, coverage_Ours_X_haj_plus_naive, coverage_Ours_G_haj_plus_naive,coverage_Ours_X_haj_plus_lin_naive, coverage_Ours_G_haj_plus_lin_naive   ))
+
+  })
 
 
 
@@ -476,9 +506,12 @@ print("tau:"); print(tau)
 # sim_res %>% summarise_all(mean)  %>% as.data.frame()
 print("Estimation:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[1:12]) 
 # sim_res %>% summarise_all(sd)  %>% as.data.frame()
-print("practical sd:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(12+1):(12*2)]) 
-print("practical coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*12+1):(3*12)]) 
 print("oracle sd:"); print((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[1:12]) 
+print("practical sd:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(12+1):(12*2)]) 
+print("naive sd:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(3*12+1):(4*12)]) 
+
+print("practical coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*12+1):(3*12)]) 
+print("naive coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*12+1):(5*12)])
 
 
 # warnings()
@@ -487,3 +520,88 @@ print("oracle sd:"); print((sim_res %>% summarise_all(sd)  %>% as.data.frame() )
 
 
 # Gao_naive <- mean(Y*T_vec/pscore1)/mean(T_vec/pscore1)-mean(Y*(1-T_vec)/pscore0)/mean((1-T_vec)/pscore0)
+
+
+
+
+
+
+
+####################################################################################################################此外还要输出oracle coverage:
+####################################################################################################################此外还要输出naive standard error
+#输出oracle coverage: 利用estimate bias以及orcle sd
+###########输出iid naive error:
+
+
+oracle <- c()
+sim_res_oracle_cover <- map_dfr(1:1, ~{
+  # o_coverage_Leung <- mean( abs(sim_res$Leung - tau)<=qnorm(0.975)*sd(sim_res$Leung) )
+  
+  
+  # 定义变量名称列表
+  variables <- c('Gao_naive', 'Gao_F', 'Gao_L', 'Ours_G_ht_plus', 'Ours_G_haj_plus', 'Ours_X_ht_plus', 'Ours_X_haj_plus', 'Ours_G_ht_plus_lin', 'Ours_G_haj_plus_lin', 'Ours_X_ht_plus_lin', 'Ours_X_haj_plus_lin')
+  
+  # 循环替换变量名称并计算结果
+  for (var in variables) {
+    o_coverage <- mean(abs(sim_res[[var]] - tau) <= qnorm(0.975) * sd(sim_res[[var]]) )
+    cat("Oracle Coverage for", var, ":", o_coverage, "\n")
+    oracle <- c(oracle, o_coverage)
+  }
+  
+
+  o_coverage_Leung_plus <- mean(abs(sim_res$Leung - tau) <= qnorm(0.975) * sd(sim_res$Leung) )
+  o_coverage_Gao_naive_plus <- mean(abs(sim_res$Gao_naive - tau) <= qnorm(0.975) * sd(sim_res$Gao_naive) )
+  o_coverage_Gao_F_plus <- mean(abs(sim_res$Gao_F - tau) <= qnorm(0.975) * sd(sim_res$Gao_F) )
+  o_coverage_Gao_L_plus <- mean(abs(sim_res$Gao_L - tau) <= qnorm(0.975) * sd(sim_res$Gao_L) )
+  o_coverage_Ours_G_ht_plus <- mean(abs(sim_res$Ours_G_ht_plus - tau) <= qnorm(0.975) * sd(sim_res$Ours_G_ht_plus) )
+  o_coverage_Ours_G_haj_plus <- mean(abs(sim_res$Ours_G_haj_plus - tau) <= qnorm(0.975) * sd(sim_res$Ours_G_haj_plus) )
+  o_coverage_Ours_X_ht_plus <- mean(abs(sim_res$Ours_X_ht_plus - tau) <= qnorm(0.975) * sd(sim_res$Ours_X_ht_plus) )
+  o_coverage_Ours_X_haj_plus <- mean(abs(sim_res$Ours_X_haj_plus - tau) <= qnorm(0.975) * sd(sim_res$Ours_X_haj_plus) )
+  
+  o_coverage_Ours_G_ht_plus_lin <- mean(abs(sim_res$Ours_G_ht_plus_lin - tau) <= qnorm(0.975) * sd(sim_res$Ours_G_ht_plus_lin) )
+  o_coverage_Ours_G_haj_plus_lin <- mean(abs(sim_res$Ours_G_haj_plus_lin - tau) <= qnorm(0.975) * sd(sim_res$Ours_G_haj_plus_lin) )
+  o_coverage_Ours_X_ht_plus_lin <- mean(abs(sim_res$Ours_X_ht_plus_lin - tau) <= qnorm(0.975) * sd(sim_res$Ours_X_ht_plus_lin) )
+  o_coverage_Ours_X_haj_plus_lin <- mean(abs(sim_res$Ours_X_haj_plus_lin - tau) <= qnorm(0.975) * sd(sim_res$Ours_X_haj_plus_lin) )
+  
+  return(tibble(o_coverage_Leung_plus, o_coverage_Gao_naive_plus, o_coverage_Gao_F_plus, o_coverage_Gao_L_plus,  o_coverage_Ours_X_ht_plus, o_coverage_Ours_G_ht_plus,  o_coverage_Ours_X_ht_plus_lin, o_coverage_Ours_G_ht_plus_lin, o_coverage_Ours_X_haj_plus, o_coverage_Ours_G_haj_plus, o_coverage_Ours_X_haj_plus_lin, o_coverage_Ours_G_haj_plus_lin))
+                
+              
+})
+
+
+# print("Oracle_coverage:"); print((sim_res_oracle_cover %>% summarise_all(mean)  %>% as.data.frame() )[1:12]) 
+
+
+# 指定要保存的文件路径
+file_path <- "result_synthetic.txt"
+
+# 将数据写入文本文件
+#truth
+write.table(tau, file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE)
+#estimation
+write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[1:12], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+#oracle sd
+write.table((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[1:12], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+#practical sd
+write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(12+1):(12*2)], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+#naive sd
+write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(3*12+1):(4*12)], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+
+#oracle coverage
+write.table((sim_res_oracle_cover %>% summarise_all(mean)  %>% as.data.frame() )[1:12], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+#practical coverage
+write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*12+1):(3*12)], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+#naive coverage
+write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*12+1):(5*12)], file = "/Users/zhangzhiheng/regression_interference/result_synthetic.txt", col.names = FALSE, append = TRUE)
+
+
+
+
+# 提示数据已成功写入文件
+cat("数据已成功写入文本文件:", file_path, "\n")
+
+
+
+
+
+
