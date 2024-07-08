@@ -13,10 +13,11 @@ control <- list(abstol = 1e-10, reltol = 1e-10)
 
 #需要再次预处理，删除一些为0的点；其次重新做G
 
-data <- data.frame(ex_name = X0422analysis$id, ex_delay = X0422analysis$delay, ex_intensive = X0422analysis$intensive, ex_buy = X0422analysis$takeup_survey)
+data <- data.frame(ex_name = X0422analysis$id, ex_delay = X0422analysis$delay, ex_intensive = X0422analysis$intensive, ex_buy = X0422analysis$takeup_survey, ex_new =  X0422analysis$insurance_buy)
+
 
 # 筛选标签为1的行
-filtered_data <- data[data$ex_delay == 1& (data$ex_intensive == 0 | 1) & (data$ex_buy == 0|1), ]
+filtered_data <- data[data$ex_delay == 1& (data$ex_intensive == 0 | 1) & (data$ex_buy == 0|1),  ]
 
 # 输出筛选结果
 print(filtered_data)
@@ -47,7 +48,7 @@ for (i in 1:nrow(filtered_data)) {
         neighbor_id <- neighbor_id[ -neighbor_id[s] ]
       }
     }
-    if(length(neighbor_id) == 0){
+    if(length(neighbor_id) == 0 ){
       cat("UserID1:", target_id, "has no neighbor in user_data2\n")
       to_remove <- c(to_remove, i)
     }
@@ -75,11 +76,13 @@ for (i in 1:nrow(filtered_data)){
   neighbor_id <- X0422twoside$network_id[X0422twoside$id == target_id]
   #之前已经可以保证在邻居id在analysis文件中的个数>0;
   tempt <- 0
+  tempt_2 <- 0
   # filtered_data_copy <- filtered_data
   for (s in 1: length(neighbor_id)){
     if (neighbor_id[s] %in% data$ex_name){
       if (data$ex_delay[data$ex_name == neighbor_id[s]] == 0){
         tempt <- 1
+        tempt_2 <- tempt_2 + 1
       }
       # tempt <- 1
     }
@@ -94,9 +97,27 @@ for (i in 1:nrow(filtered_data)){
     to_remove <- c(to_remove, i)
   }
   
+  if (tempt_2 == length(neighbor_id))
+    to_remove <- c(to_remove, i)
+  
 }
 
 filtered_data <- filtered_data[-to_remove,]
+
+
+# to_remove <- c()
+# 
+# for (i in 1:nrow(filtered_data)){
+#   
+#   target_id <- filtered_data$ex_name[i]
+#   neighbor_id <- X0422twoside$network_id[X0422twoside$id == target_id]
+#   if (length(neighbor_id) >= 5){
+#     to_remove <- c(to_remove, i)
+#   } 
+#   
+# }
+# filtered_data <- filtered_data[-to_remove,]
+
 
 print("we have done!")
 
@@ -219,17 +240,28 @@ for (i in 1: nrow(filtered_data)){
   neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
   # neighbor_id_inter <- intersect(neighbor_id, X0422analysis$id)
   # neighbor_id_inter <- intersect(neighbor_id_inter, X0422allinforawnet$id)
-  try <- 0
+  elig <- 0
   for (s in 1: length(neighbor_id)){
     if  (! (neighbor_id[s] %in% data$ex_name)){
       neighbor_id <- neighbor_id[ -neighbor_id[s] ]
+    } else {
+      if (data$ex_delay[data$ex_name == neighbor_id[s] ] == 0)
+      {
+        elig <- (elig + 1)
+      }
     }
+   
   }
   
-  
-  pscore0[i] <- pbinom(0 ,size = length(neighbor_id) - rowSums(ex_adj_matrix), prob = 0.25)
+  # elig <- min(elig, 4)
+  # pscore0[i] <- pbinom(0 ,size = length(neighbor_id) - rowSums(ex_adj_matrix), prob = 0.5)
+  pscore0[i] <- pbinom(0 ,size = elig, prob = 0.5)
+  # pscore0[i] <- max(pscore0[i], 0.1)
+  # pscore0[i]<-0.5
+  #修改：邻居中所有的delay = 0的个体选出来，然后使用0.5概率
   # pscore0[i] <- pbinom(0 ,size = (rowSums(ex_adj_matrix)[i]-1), prob = 0.25)
   #neighborhood 必须要有 delay = 0, intensive = 1的
+  if (length(neighbor_id) > 0){
   for (s in 1: length(neighbor_id)){
     # tempt <- 0
     if (neighbor_id[s] %in% data$ex_name){
@@ -240,7 +272,8 @@ for (i in 1: nrow(filtered_data)){
       # if (tempt >= floor( length(neighbor_id)/2 ) ){T_vec[i] <- 1}
       # tempt <- 1
     }
-  }
+  }}
+  
 }
 
 
@@ -426,7 +459,8 @@ for (i in 1:nrow(filtered_data)){
   rate4 <- c(rate4,   X0422analysis$network_rate_pretakeup[X0422analysis$id == filtered_data$ex_name[i]] )
 }
 
-new_G <- cbind(X, rate2, rate3)
+# new_G <- cbind(X, rate2, rate3)
+new_G <- cbind(X, rate2)
 new_G <- scale(new_G)
 
 
@@ -515,11 +549,12 @@ var_Gao_L_plus <- sqrt(var_Gao_L_plus)
 get_X <- function(X,Z,G){
   # return(matrix(c(Z,drop(G%*%Z),X,drop(G%*%X)), nrow=n, ncol = 4))      #it is a generalized variable constructed by (Z, G*Z, X, G*X);
   
-  return(matrix(c(Z,drop(G%*%Z),     X,drop(G%*%X)), nrow=n, ncol = 1+1+ncol(X) * 2))
+  return(matrix(c(Z,drop(G%*%Z),     X, drop(G%*%X)), nrow=n, ncol = 1+1+ncol(X) * 2))
 }
 
 get_T <- function(Z){
   TZ <- numeric( nrow(filtered_data) )
+  X0422analysis$tempt_Z <- Z
   for (i in 1: nrow(filtered_data)){
     target_id <- filtered_data$ex_name[i]
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
@@ -528,7 +563,7 @@ get_T <- function(Z){
     #neighborhood 必须要有 delay = 0, intensive = 1的
     for (s in 1: length(neighbor_id)){
       if (neighbor_id[s] %in% X0422analysis$id){
-        if ( X0422analysis$tempt_Z[X0422analysis$id == neighbor_id[s] ] ==1  )
+        if ( X0422analysis$tempt_Z[X0422analysis$id == neighbor_id[s] ] ==1 & X0422analysis$delay[X0422analysis$id == neighbor_id[s] ] == 0  )
         {TZ[i] <- 1}
       }
     }
@@ -538,6 +573,23 @@ get_T <- function(Z){
   
   
   return(TZ)
+}
+
+get_rate <- function(Z){
+  rate <- numeric(nrow(filtered_data))
+  X0422analysis$tempt_Z <- Z
+  for (i in 1: nrow(filtered_data)){
+    target_id <- filtered_data$ex_name[i]
+    neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
+    
+    
+    #neighborhood 计算intensive = 1的个数
+    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
+    
+    
+  }
+  return(rate)
+  
 }
 
 
@@ -568,8 +620,8 @@ X0422analysis <- cbind(X0422analysis, tempt_Z)
 
 mom_mat <- matrix(0, nrow = n, ncol =  1 + ncol(new_G) )
 # mom_mat_new <- matrix(0, nrow = n, ncol =  1 + 2+2*ncol(ourG) )
-for(i in 1:1000){
-  Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.25)
+for(i in 1:200){
+  Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
   
@@ -577,7 +629,9 @@ for(i in 1:1000){
   Z_sub <- subset_tempt$tempt_Z
   w_haj <- TZ/(pscore1*mean(TZ/pscore1))-(1-TZ)/(pscore0*mean((1-TZ)/pscore0)) #They are both $n*1$ vectors;
   
-  X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
+  # X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
+  #需要输入地是邻居被treated 的比例：
+  X_aug <- cbind(X, get_rate(Z))
   mom_mat <- mom_mat + c(w_haj^2, X_aug*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
   
   # X_aug_new <- get_X(ourG, Z_sub, G)
@@ -605,8 +659,8 @@ orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
 
 mom_mat <- matrix(0, nrow = n, ncol =  1 + (ncol(new_G))*2 )
 # mom_mat_new <- matrix(0, nrow = n, ncol =  1 + (2+2*ncol(ourG))*2 )
-for(i in 1:1000){
-  Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.25)
+for(i in 1:200){
+  Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
   
@@ -614,7 +668,8 @@ for(i in 1:1000){
   Z_sub <- subset_tempt$tempt_Z
   w_haj <- TZ/(pscore1*mean(TZ/pscore1))-(1-TZ)/(pscore0*mean((1-TZ)/pscore0)) #They are both $n*1$ vectors;
   
-  X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
+  # X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
+  X_aug <- cbind(X, get_rate(Z))
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
   mom_mat <- mom_mat + c(w_haj^2, X_aug_lin*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
   
@@ -746,7 +801,7 @@ quadratic_function <- function(hbeta) {
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result <- optim( matrix(c(hbeta_2_haj_5,0,0) ),          quadratic_function)
+result <- optim( matrix(c(hbeta_2_haj_5,0) ),          quadratic_function)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
@@ -778,7 +833,7 @@ quadratic_function <- function(hbeta) {
 }
 # 使用优化函数找到最小值和对应的位置
 
-result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 2) ))    ,    quadratic_function, control = control)
+result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,1),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 1) ))    ,    quadratic_function, control = control)
 #
 # 输出最优值和最优位置
 cat("最小值：", result0$value, "\n")
