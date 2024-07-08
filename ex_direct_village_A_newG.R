@@ -91,6 +91,7 @@ for (i in 1:nrow(filtered_data)){
   neighbor_id <- X0422twoside$network_id[X0422twoside$id == target_id]
   
   tempt <- 0
+  tempt_2 <- 0
   # filtered_data_copy <- filtered_data
   # if (data$ex_delay[data$ex_name == target_id] == 0){
   #   tempt <- 1 #itself is in the fist round.
@@ -106,6 +107,9 @@ for (i in 1:nrow(filtered_data)){
   }
   
   if (tempt == 0){
+    to_remove <- c(to_remove, i)
+  }
+  if (tempt_2 == length(neighbor_id)){
     to_remove <- c(to_remove, i)
   }
   
@@ -237,6 +241,7 @@ edu <- c()
 repay <- c()
 understand <- c()
 onehotvil <- c()
+del <- c()
 
 for (i in 1:nrow(filtered_data)) {
   target_id <- filtered_data$ex_name[i]
@@ -246,8 +251,9 @@ for (i in 1:nrow(filtered_data)) {
   rice_inc_element <- X0422analysis$rice_inc[X0422analysis$id == target_id] ;riceinc <- c(riceinc, rice_inc_element);
   edu_element <- X0422analysis$educ[X0422analysis$id == target_id] ; edu <- c(edu, edu_element);
   repay_element <- X0422analysis$insurance_repay[X0422analysis$id == target_id] ; repay <- c(repay, repay_element);
-  understand_element <- X0422analysis$understanding[X0422analysis$id == target_id] ; understand <- c(understand, understand_element)
-  onehotvil_element<- X0422analysis$onehot_cluster[X0422analysis$id == target_id, ]; onehotvil <- cbind(onehotvil, onehotvil_element)
+  understand_element <- X0422analysis$understanding[X0422analysis$id == target_id] ; understand <- c(understand, understand_element);
+  # onehotvil_element<- X0422analysis$onehot_cluster[X0422analysis$id == target_id, ]; onehotvil <- cbind(onehotvil, onehotvil_element)
+  # del_element <- X0422analysis$delay[X0422analysis$id == target_id] ; del <- c(del, del_element)
 }
 
 
@@ -284,6 +290,8 @@ riceinc_final <- ifelse(riceinc < median_riceinc, -1, 1)
 edu_final <- ifelse(edu < median_edu, -1, 1)
 repay_final <- ifelse(repay < median_edu, -1, 1)
 understand_final <- ifelse(understand < median_edu, -1, 1)
+
+
 # 
 # householdsize_final <- scale(householdsize)
 # ricearea_final <- scale(ricearea)
@@ -307,6 +315,7 @@ top_five_cols <- tail(order(col_sums), 40)
 cluster_record <- cluster_record[, top_five_cols]
 #删除全部为0的列
 X <- cbind(X, cluster_record)
+# X <- cbind(X, del)
 X <- scale(X)
 # X <- X[,1:6 ]
 # X <- X[, 1:6]
@@ -350,7 +359,8 @@ for (i in 1:nrow(filtered_data)){
   rate4 <- c(rate4,   X0422analysis$network_rate_pretakeup[X0422analysis$id == filtered_data$ex_name[i]] )
 }
 
-new_G <- cbind(X, rate2, rate3)
+# new_G <- cbind(X, rate2, rate3)
+new_G <- cbind(X, rate2)
 new_G <- scale(new_G)
 
 
@@ -450,6 +460,27 @@ get_X <- function(X,Z,G){
 }
 
 
+get_rate <- function(Z){
+  rate <- numeric(nrow(filtered_data))
+  #对于每一个filtered_data:
+  X0422analysis$tempt_Z_direct <- Z
+  for (i in 1: nrow(filtered_data)){
+    target_id <- filtered_data$ex_name[i]
+    neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
+    
+    
+    #neighborhood 计算intensive = 1的个数
+    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
+    
+    
+  }
+  return(rate)
+  
+
+  
+}
+
+
 #I have done here!!!!!
 # mom_mat <- matrix(0, nrow = n, ncol = 1+1+ 2 +ncol(X)*2 )
 # for(i in 1:1000){
@@ -462,10 +493,16 @@ get_X <- function(X,Z,G){
 # #G can be self modified!
 
 mom_mat <- matrix(0, nrow = n, ncol = (1 + ncol(new_G)) )
-for(i in 1:1000){
-  Z <- rbinom(n, size = 1, prob = 0.5)
-  X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
-  w_haj <- Z/(pscore1*mean(Z/pscore1))-(1-Z)/(pscore0*mean((1-Z)/pscore0)) #They are both $n*1$ vectors;
+for(i in 1:200){
+  Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
+  
+  X0422analysis$tempt_Z <- Z
+  subset_tempt <- X0422analysis[X0422analysis$id %in% filtered_data$ex_name,]
+  Z_sub <- subset_tempt$tempt_Z
+  
+  
+  X_aug <- cbind(X, get_rate(Z)) #in each simulation, we need compute the new $X_aug$ (n*4);
+  w_haj <- Z_sub/(pscore1*mean(Z/pscore1))-(1-Z_sub)/(pscore0*mean((1-Z)/pscore0)) #They are both $n*1$ vectors;
   mom_mat <- mom_mat + c(w_haj^2, X_aug*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
 }
 orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
@@ -483,9 +520,15 @@ orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
 # orth_coef_lin <- mom_mat[, 2: (1+ (2 +ncol(X)*2)*2 ) ] / mom_mat[, 1]
 
 mom_mat <- matrix(0, nrow = n, ncol = 1+ ( ncol(new_G)) * 2  )
-for(i in 1:1000){
-  Z <- rbinom(n, size = 1, prob = r1);  X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
-  w_haj <- Z/(pscore1*mean(Z/pscore1))-(1-Z)/(pscore0*mean((1-Z)/pscore0)) #They are both $n*1$ vectors;
+for(i in 1:200){
+  Z <- rbinom(nrow(X0422analysis), size = 1, prob = r1); 
+  
+  X0422analysis$tempt_Z <- Z
+  subset_tempt <- X0422analysis[X0422analysis$id %in% filtered_data$ex_name,]
+  Z_sub <- subset_tempt$tempt_Z
+  
+  X_aug <- cbind(X, get_rate(Z)) #in each simulation, we need compute the new $X_aug$ (n*4);
+  w_haj <- Z_sub/(pscore1*mean(Z/pscore1))-(1-Z_sub)/(pscore0*mean((1-Z)/pscore0)) #They are both $n*1$ vectors;
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
   mom_mat <- mom_mat + c(w_haj^2, X_aug_lin*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
 }
@@ -588,7 +631,7 @@ quadratic_function <- function(hbeta) {
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result <- optim( matrix(c(hbeta_2_haj_5,0,0) ),          quadratic_function)
+result <- optim( matrix(c(hbeta_2_haj_5,0) ),          quadratic_function)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
@@ -620,7 +663,7 @@ quadratic_function <- function(hbeta) {
 }
 # 使用优化函数找到最小值和对应的位置
 
-result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 2) ))    ,    quadratic_function, control = control)
+result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,1),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 1) ))    ,    quadratic_function, control = control)
 #
 # 输出最优值和最优位置
 cat("最小值：", result0$value, "\n")
@@ -658,4 +701,3 @@ print(res, n = Inf, width = Inf)
 
 
 
- 
