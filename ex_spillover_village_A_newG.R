@@ -12,9 +12,9 @@ control <- list(abstol = 1e-10, reltol = 1e-10)
 #此外把two-side1换成two-side值得尝试
 
 #需要再次预处理，删除一些为0的点；其次重新做G
-
+# X0422analysis <- X0422analysis[complete.cases(X0422analysis),  ] 
 data <- data.frame(ex_name = X0422analysis$id, ex_delay = X0422analysis$delay, ex_intensive = X0422analysis$intensive, ex_buy = X0422analysis$takeup_survey, ex_new =  X0422analysis$insurance_buy)
-
+# data <- data[complete.cases(data), ]
 
 # 筛选标签为1的行
 filtered_data <- data[data$ex_delay == 1& (data$ex_intensive == 0 | 1) & (data$ex_buy == 0|1),  ]
@@ -404,7 +404,7 @@ top_five_cols <- tail(order(col_sums), 40)
 cluster_record <- cluster_record[, top_five_cols]
 #删除全部为0的列
 X <- cbind(X, cluster_record)
-
+X <- cbind(X)
 
 # X <- X[, 1:6]
 X <- scale(X)
@@ -456,12 +456,12 @@ rate4 <- c()
 for (i in 1:nrow(filtered_data)){
   rate2 <- c(rate2,   X0422analysis$network_rate_preintensive[X0422analysis$id == filtered_data$ex_name[i]] )
   rate3 <- c(rate3,   X0422analysis$network_rate_presession[X0422analysis$id == filtered_data$ex_name[i]] )
-  rate4 <- c(rate4,   X0422analysis$network_rate_pretakeup[X0422analysis$id == filtered_data$ex_name[i]] )
+  rate4 <- c(rate4,   X0422analysis$network_rate_presimple[X0422analysis$id == filtered_data$ex_name[i]] )
 }
 
 # new_G <- cbind(X, rate2, rate3)
 new_G <- cbind(X, rate2)
-new_G <- scale(new_G)
+# new_G <- scale(new_G)
 
 
 
@@ -584,7 +584,7 @@ get_rate <- function(Z){
     
     
     #neighborhood 计算intensive = 1的个数
-    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
+    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * (1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     
     
   }
@@ -620,7 +620,7 @@ X0422analysis <- cbind(X0422analysis, tempt_Z)
 
 mom_mat <- matrix(0, nrow = n, ncol =  1 + ncol(new_G) )
 # mom_mat_new <- matrix(0, nrow = n, ncol =  1 + 2+2*ncol(ourG) )
-for(i in 1:200){
+for(i in 1:2000){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
@@ -659,7 +659,7 @@ orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
 
 mom_mat <- matrix(0, nrow = n, ncol =  1 + (ncol(new_G))*2 )
 # mom_mat_new <- matrix(0, nrow = n, ncol =  1 + (2+2*ncol(ourG))*2 )
-for(i in 1:200){
+for(i in 1:2000){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   X0422analysis$tempt_Z <- Z
   TZ <- get_T(Z)
@@ -801,7 +801,7 @@ quadratic_function <- function(hbeta) {
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result <- optim( matrix(c(hbeta_2_haj_5,0) ),          quadratic_function)
+result <- optim( matrix(c(hbeta_2_haj_5,rep(0,1)) ),          quadratic_function)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
@@ -904,4 +904,3 @@ cat("数据已成功写入文本文件:", file_path, "\n")
 
 
 
- 
