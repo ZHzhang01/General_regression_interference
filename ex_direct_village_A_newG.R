@@ -356,12 +356,12 @@ rate4 <- c()
 for (i in 1:nrow(filtered_data)){
   rate2 <- c(rate2,   X0422analysis$network_rate_preintensive[X0422analysis$id == filtered_data$ex_name[i]] )
   rate3 <- c(rate3,   X0422analysis$network_rate_presession[X0422analysis$id == filtered_data$ex_name[i]] )
-  rate4 <- c(rate4,   X0422analysis$network_rate_pretakeup[X0422analysis$id == filtered_data$ex_name[i]] )
+  rate4 <- c(rate4,   X0422analysis$network_rate_presimple[X0422analysis$id == filtered_data$ex_name[i]] )
 }
 
 # new_G <- cbind(X, rate2, rate3)
 new_G <- cbind(X, rate2)
-new_G <- scale(new_G)
+# new_G <- scale(new_G)
 
 
 
@@ -470,7 +470,7 @@ get_rate <- function(Z){
     
     
     #neighborhood 计算intensive = 1的个数
-    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
+    rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * X0422analysis$intensive[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
     
     
   }
@@ -631,7 +631,7 @@ quadratic_function <- function(hbeta) {
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result <- optim( matrix(c(hbeta_2_haj_5,0) ),          quadratic_function)
+result <- optim( matrix(c(hbeta_2_haj_5,   rep(0,1)  ) ),          quadratic_function)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
@@ -663,7 +663,7 @@ quadratic_function <- function(hbeta) {
 }
 # 使用优化函数找到最小值和对应的位置
 
-result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,1),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 1) ))    ,    quadratic_function, control = control)
+result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,1),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0,1)  ) ) ,    quadratic_function, control = control )  
 #
 # 输出最优值和最优位置
 cat("最小值：", result0$value, "\n")
