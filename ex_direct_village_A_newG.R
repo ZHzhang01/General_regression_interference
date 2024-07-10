@@ -483,7 +483,7 @@ get_rate <- function(Z){
 
 #I have done here!!!!!
 # mom_mat <- matrix(0, nrow = n, ncol = 1+1+ 2 +ncol(X)*2 )
-# for(i in 1:1000){
+# for(i in 1:20000){
 #   Z <- rbinom(n, size = 1, prob = 0.5);  X_aug <- get_X(X,Z, G ) #in each simulation, we need compute the new $X_aug$ (n*4);
 #   X_aug <- cbind(X_aug, 1)
 #   w <- Z/pscore1-(1-Z)/pscore0 #They are both $n*1$ vectors;
@@ -493,7 +493,7 @@ get_rate <- function(Z){
 # #G can be self modified!
 
 mom_mat <- matrix(0, nrow = n, ncol = (1 + ncol(new_G)) )
-for(i in 1:200){
+for(i in 1:2000){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   
   X0422analysis$tempt_Z <- Z
@@ -511,7 +511,7 @@ orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
 ############################################继续添加Lin的方法
 #we also need to compute the iteraction debiasing procedure:
 # mom_mat <- matrix(0, nrow = n, ncol = 1+ (2 +ncol(X)*2)*2   )
-# for(i in 1:1000){
+# for(i in 1:20000){
 #   Z <- rbinom(n, size = 1, prob = 0.5);  X_aug <- get_X(X,Z,G) #in each simulation, we need compute the new $X_aug$ (n*4);
 #   w <- Z/pscore1-(1-Z)/pscore0 #They are both $n*1$ vectors;
 #   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
@@ -520,7 +520,7 @@ orth_coef_haj <- mom_mat[, 2: (1 + ncol(new_G))] / mom_mat[, 1]
 # orth_coef_lin <- mom_mat[, 2: (1+ (2 +ncol(X)*2)*2 ) ] / mom_mat[, 1]
 
 mom_mat <- matrix(0, nrow = n, ncol = 1+ ( ncol(new_G)) * 2  )
-for(i in 1:200){
+for(i in 1:2000){
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = r1); 
   
   X0422analysis$tempt_Z <- Z
@@ -697,6 +697,17 @@ res <- tibble(Leung, Gau_naive, Gao_F, Gao_L, Ours_X_haj_plus, Ours_newG_haj_plu
 
 print(res, n = Inf, width = Inf)
 
+
+
+
+# 指定要保存的文件路径
+file_path <- "result.txt"
+
+# 将数据写入文本文件
+write.table(res, file = "/Users/zhangzhiheng/regression_interference/result.txt", col.names = FALSE)
+
+# 提示数据已成功写入文件
+cat("数据已成功写入文本文件:", file_path, "\n")
 
 
 
