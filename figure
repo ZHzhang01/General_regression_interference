@@ -1,0 +1,107 @@
+
+
+library(latex2exp)
+
+# 创建数据
+methods <- c(TeX("Leung"), "Haj", "F", TeX("$L$"), TeX("$ND1$"), TeX("$ND2$"), TeX("$ND3$"), TeX("$ND4$"))
+
+
+
+
+# 
+# tauhat <- c(0.0381, 0.0611, 0.0604, 0.0581, 0.0641, 0.0653, 0.0590, 0.0610)
+# se <- c(0.0447, 0.0292, 0.0270, 0.0241, 0.0258, 0.0250, 0.0236, 0.0232)
+
+tauhat <- c(0.00820092260379293, 0.0146330595327173, 0.0170296950374151, 0.0167846981604458, 0.0182518687764746 ,0.0188175130462188, 0.0170300763844193 ,0.0167375800308713)
+
+se <- c(0.0272057529447291, 0.0224753652106445, 0.0217943439847419, 0.0197159619500027, 0.021043579828051, 0.0203267251166658, 0.0194596749983665, 0.0192807618321486)
+
+
+
+
+lower_bounds <- tauhat - 1.96 * se
+upper_bounds <- tauhat + 1.96 * se
+midpoints <- (lower_bounds + upper_bounds) / 2
+
+
+library(ggplot2)
+
+# 创建示例数据集
+data <- data.frame(direct = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+                   Interval = midpoints,
+                   lower_ci = lower_bounds,
+                   upper_ci = upper_bounds)
+
+# 将 Method 列转换为有序因子，并指定固定顺序
+data$direct <- factor(data$direct, levels = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+
+# 绘制带有置信区间的散点图，并设置不同柱子颜色
+p1 <- ggplot(data, aes(x = direct, y = Interval, color = direct)) +
+  geom_point(size = 5) +  # 实心圆点
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.5, size = 1) +  # 置信区间
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), aspect.ratio = 2/2) +  # 使横坐标竖直显示
+  scale_color_manual(values = c("black", "black", "brown", "blue", "brown", "brown", "blue", "blue"))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
+
+
+
+
+
+
+tauhat <- c(0.0381, 0.0611, 0.0604, 0.0581, 0.0641, 0.0653, 0.0590, 0.0610)
+se <- c(0.0447, 0.0292, 0.0270, 0.0241, 0.0258, 0.0250, 0.0236, 0.0232)
+
+
+lower_bounds <- tauhat - 1.96 * se
+upper_bounds <- tauhat + 1.96 * se
+midpoints <- (lower_bounds + upper_bounds) / 2
+
+
+library(ggplot2)
+
+# 创建示例数据集
+data <- data.frame(spillover = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+                   Interval = midpoints,
+                   lower_ci = lower_bounds,
+                   upper_ci = upper_bounds)
+
+# 将 Method 列转换为有序因子，并指定固定顺序
+data$spillover <- factor(data$spillover, levels = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+
+# 绘制带有置信区间的散点图，并设置不同柱子颜色
+p2 <- ggplot(data, aes(x = spillover, y = Interval, color = spillover)) +
+  geom_point(size = 5) +  # 实心圆点
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.5, size = 1) +  # 置信区间
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), aspect.ratio = 2/2) +  # 使横坐标竖直显示
+  scale_color_manual(values = c("black", "black", "brown", "blue", "brown", "brown", "blue", "blue"))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
+
+
+
+library(gridExtra)
+widths <- c(5, 5)
+
+# 设置各图高度比例，例如两个图高度比例为1:1
+# heights <- c(1, 1)
+
+# 设置画布长宽比为2:1
+# p_combined <- p_combined + theme(aspect.ratio = 2/1)
+# 
+# print(p_combined)
+
+
+grid.arrange(p1, p2, nrow = 1, widths = widths)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
