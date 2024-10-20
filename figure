@@ -3,7 +3,7 @@
 library(latex2exp)
 
 # 创建数据
-methods <- c(TeX("Leung"), "Haj", "F", TeX("$L$"), TeX("$ND1$"), TeX("$ND2$"), TeX("$ND3$"), TeX("$ND4$"))
+methods <- c(TeX("HT"), "Haj", "F", TeX("$L$"), TeX("$ND1$"), TeX("$ND2$"), TeX("$ND3$"), TeX("$ND4$"))
 
 
 
@@ -27,13 +27,13 @@ midpoints <- (lower_bounds + upper_bounds) / 2
 library(ggplot2)
 
 # 创建示例数据集
-data <- data.frame(direct = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+data <- data.frame(direct = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
                    Interval = midpoints,
                    lower_ci = lower_bounds,
                    upper_ci = upper_bounds)
 
 # 将 Method 列转换为有序因子，并指定固定顺序
-data$direct <- factor(data$direct, levels = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+data$direct <- factor(data$direct, levels = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
 
 # 绘制带有置信区间的散点图，并设置不同柱子颜色
 p1 <- ggplot(data, aes(x = direct, y = Interval, color = direct)) +
@@ -60,13 +60,13 @@ midpoints <- (lower_bounds + upper_bounds) / 2
 library(ggplot2)
 
 # 创建示例数据集
-data <- data.frame(spillover = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+data <- data.frame(spillover = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
                    Interval = midpoints,
                    lower_ci = lower_bounds,
                    upper_ci = upper_bounds)
 
 # 将 Method 列转换为有序因子，并指定固定顺序
-data$spillover <- factor(data$spillover, levels = c("Leung", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+data$spillover <- factor(data$spillover, levels = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
 
 # 绘制带有置信区间的散点图，并设置不同柱子颜色
 p2 <- ggplot(data, aes(x = spillover, y = Interval, color = spillover)) +
