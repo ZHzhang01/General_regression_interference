@@ -59,6 +59,20 @@ X <- scale(X)
 
 
 
+data1 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt", header = FALSE)
+data2 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt", header = FALSE)
+data3 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt", header = FALSE)
+data4 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt", header = FALSE)
+data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
+data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
+
+X <- as.matrix(data1[, -1])  # 提取向量
+Y_0 <- as.matrix(data2[, -1])  # 提取向量
+Y_1 <- as.matrix(data3[, -1])  # 提取向量
+errors <- as.vector(data4[, -1])   # 提取向量
+pscore1 <-  as.vector(data5[, -1])   # 提取向量
+pscore0 <-  as.vector(data6[, -1])   # 提取向量
+
 
 
 get_Y <- function(Z){
@@ -69,6 +83,17 @@ get_Y <- function(Z){
   
   
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -104,7 +129,7 @@ sum <- c()
 
 
 ##################################################################################################################################bn = 3
-sim_res<- map_dfr(1:1000, ~{
+sim_res<- map_dfr(1:500, ~{
   A <- diag(n)
   sum <- c(sum,1); print("sum:"); print(length(sum))
   Z <- rbinom(n, size = 1, prob = pscore1); Y <- get_Y(Z); X_aug <- X
@@ -163,7 +188,7 @@ sim_res<- map_dfr(1:1000, ~{
   X_db <- X #it is n*4;  n*1,  n*4
   X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
   #here we use...
-  X_db <- cbind(X * pscore1, X * pscore0)
+  # X_db <- cbind(X * pscore1, X * pscore0)
   D_2 <- (X_db * w)
   # D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
   
@@ -198,7 +223,7 @@ sim_res<- map_dfr(1:1000, ~{
   X_db <- X #it is n*4;  n*1,  n*4
   X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
   #here we use...
-  # X_db <- cbind(X * pscore1, X * pscore0)
+  X_db <- cbind(X * pscore1, X * pscore0)
   D_2 <- (X_db * w)
   # D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
   
@@ -509,6 +534,7 @@ return(tibble(oracle, oracle_plus))
 file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
 
 
+
 # 将数据写入文本文件
 #truth
 write.table(tau, file = file_path, col.names = FALSE)
@@ -567,12 +593,16 @@ cat("数据已成功写入文本文件(bn = 3):", file_path, "\n")
 ###########################################################################################################################################################################################################
 file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt"
 write.table(X, file = file_path, col.names = FALSE)
-# file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_G_counter.txt"
-# write.table(G, file = file_path, col.names = FALSE)
+file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt"
+write.table(Y_1, file = file_path, col.names = FALSE)
+file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt"
+write.table(Y_0, file = file_path, col.names = FALSE)
 file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt"
 write.table(errors, file = file_path, col.names = FALSE)
-
-
+file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt"
+write.table(pscore1, file = file_path, col.names = FALSE)
+file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt"
+write.table(pscore0, file = file_path, col.names = FALSE)
 
 
 
