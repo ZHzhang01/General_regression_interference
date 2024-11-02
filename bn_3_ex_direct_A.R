@@ -524,7 +524,7 @@ get_rate_2 <- function(Z){
 
 mom_mat <- matrix(0, nrow = n, ncol = (1 + ncol(new_G)) )
 mom_mat_lin <- matrix(0, nrow = n, ncol = 1+ ( ncol(new_G)) * 2  )
-for(i in 1:100){
+for(i in 1:10000){
   cat("iteration:", i)
   Z <- rbinom(nrow(X0422analysis), size = 1, prob = 0.5)
   X0422analysis$tempt_Z <- Z
@@ -590,6 +590,7 @@ w_haj_0 <- (1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
 X_db <- X
 # D_2 <- scale(X_db*w, scale = FALSE)
 D_2 <- X_db*w
+D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 # # 删除所有元素均为0的列并输出剩下的矩阵
 # X_db <- X_db[, !zero_cols_idx]
@@ -616,6 +617,7 @@ print(var_Ours_X_haj_plus)
 #fourth case:
 X_aug <- X #we revise it!
 X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
+#X_db <- cbind(X_aug * pscore1, X_aug * (1-pscore1))
 # X_db <- scale(X_db)
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
@@ -623,6 +625,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 # # 删除所有元素均为0的列并输出剩下的矩阵
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
+D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 quadratic_function <- function(hbeta) {
   result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
@@ -647,7 +650,7 @@ X_db <- X_db - w_haj * (orth_coef_haj)
 # X_db[, 1:ncol(X)] <- X[, 1:ncol(X)]
 # D_2 <- scale(X_db*w, scale = FALSE)
 D_2 <- X_db*w
-
+D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
 # # 删除所有元素均为0的列并输出剩下的矩阵
 # X_db <- X_db[, !zero_cols_idx]
@@ -683,6 +686,7 @@ X_db <- X_db - w_haj * (orth_coef_haj_lin)
 # # 删除所有元素均为0的列并输出剩下的矩阵
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
+D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 quadratic_function <- function(hbeta) {
   result <- t(D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*% A %*% (D- D_2%*%hbeta  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   result<- sqrt(result)
