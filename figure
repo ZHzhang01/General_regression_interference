@@ -3,7 +3,7 @@
 library(latex2exp)
 
 # 创建数据
-methods <- c(TeX("HT"), "Haj", "F", TeX("$L$"), TeX("$ND1$"), TeX("$ND2$"), TeX("$ND3$"), TeX("$ND4$"))
+methods <- c(TeX("HT"), "Haj", "F", TeX("LL"), TeX("ND1ND1"), TeX("ND2ND2"), TeX("ND3ND3"), TeX("ND4ND4"))
 
 
 
@@ -12,9 +12,12 @@ methods <- c(TeX("HT"), "Haj", "F", TeX("$L$"), TeX("$ND1$"), TeX("$ND2$"), TeX(
 # tauhat <- c(0.0381, 0.0611, 0.0604, 0.0581, 0.0641, 0.0653, 0.0590, 0.0610)
 # se <- c(0.0447, 0.0292, 0.0270, 0.0241, 0.0258, 0.0250, 0.0236, 0.0232)
 
-tauhat <- c(0.00820092260379293, 0.0146330595327173, 0.0170296950374151, 0.0167846981604458, 0.0182518687764746 ,0.0188175130462188, 0.0170300763844193 ,0.0167375800308713)
 
-se <- c(0.0272057529447291, 0.0224753652106445, 0.0217943439847419, 0.0197159619500027, 0.021043579828051, 0.0203267251166658, 0.0194596749983665, 0.0192807618321486)
+                                           
+                                           
+tauhat <- c(0.00820, 0.0146, 0.0170, 0.0168, 0.0167, 0.0161 ,0.0164, 0.0175)
+
+se <- c(0.0272, 0.0225, 0.0218, 0.0197, 0.0211, 0.0204, 0.0195, 0.0193)
 
 
 
@@ -27,28 +30,35 @@ midpoints <- (lower_bounds + upper_bounds) / 2
 library(ggplot2)
 
 # 创建示例数据集
-data <- data.frame(direct = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+data <- data.frame(direct = c("HT", "Haj", "F", ("L"), "ND-F", "ND-G_1", "ND-L",  "ND-G_2"),
                    Interval = midpoints,
                    lower_ci = lower_bounds,
                    upper_ci = upper_bounds)
 
 # 将 Method 列转换为有序因子，并指定固定顺序
-data$direct <- factor(data$direct, levels = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+datadirect<−factor(datadirect <- factor(datadirect, levels = c("HT", "Haj", "F", ("L"), "ND-F", "ND-G_1", "ND-L",  "ND-G_2"), ordered = TRUE)
 
 # 绘制带有置信区间的散点图，并设置不同柱子颜色
 p1 <- ggplot(data, aes(x = direct, y = Interval, color = direct)) +
-  geom_point(size = 5) +  # 实心圆点
-  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.5, size = 1) +  # 置信区间
+  geom_point(size = 4, shape = 3) +  # 实心圆点
+  
+  geom_errorbar(data = subset(data, direct %in% c("HT", "Haj", "F", "L")),
+                aes(ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, size = 1, linetype = "longdash")+
+  geom_errorbar(data = subset(data, direct %in% c("ND-F", "ND-G_1", "ND-L", "ND-G_2")),
+                aes(ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, size = 1, linetype = "solid")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1), aspect.ratio = 2/2) +  # 使横坐标竖直显示
   scale_color_manual(values = c("black", "black", "brown", "blue", "brown", "brown", "blue", "blue"))+
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black")+
+  theme(legend.position = "none") 
 
 
 
 
 
 
-tauhat <- c(0.0381, 0.0611, 0.0604, 0.0581, 0.0641, 0.0653, 0.0590, 0.0610)
+tauhat <- c(0.0381, 0.0611, 0.0604, 0.0581, 0.0660, 0.0683, 0.0592, 0.0472)
 se <- c(0.0447, 0.0292, 0.0270, 0.0241, 0.0258, 0.0250, 0.0236, 0.0232)
 
 
@@ -60,21 +70,30 @@ midpoints <- (lower_bounds + upper_bounds) / 2
 library(ggplot2)
 
 # 创建示例数据集
-data <- data.frame(spillover = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"),
+data <- data.frame(spillover = c("HT", "Haj", "F", ("L"), "ND-F", "ND-G_1", "ND-L",  "ND-G_2"),
                    Interval = midpoints,
                    lower_ci = lower_bounds,
                    upper_ci = upper_bounds)
 
 # 将 Method 列转换为有序因子，并指定固定顺序
-data$spillover <- factor(data$spillover, levels = c("HT", "Haj", "F-X", ("L-X_int"), "ND-X", "ND-G", "ND-X_int",  "ND-G_int"), ordered = TRUE)
+dataspillover<−factor(dataspillover <- factor(dataspillover, levels = c("HT", "Haj", "F", ("L"), "ND-F", "ND-G_1", "ND-L",  "ND-G_2"), ordered = TRUE)
 
 # 绘制带有置信区间的散点图，并设置不同柱子颜色
 p2 <- ggplot(data, aes(x = spillover, y = Interval, color = spillover)) +
-  geom_point(size = 5) +  # 实心圆点
-  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.5, size = 1) +  # 置信区间
+  #geom_point(size = 4) +  # 实心圆点
+  geom_point(size = 4, shape = 3) +  # 前三个为实心圆点，后四个为叉号
+  
+  geom_errorbar(data = subset(data, spillover %in% c("HT", "Haj", "F", "L")),
+                aes(ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, size = 1, linetype = "longdash")+
+  geom_errorbar(data = subset(data, spillover %in% c("ND-F", "ND-G_1", "ND-L", "ND-G_2")),
+                aes(ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, size = 1, linetype = "solid")+
+  
   theme(axis.text.x = element_text(angle = 90, hjust = 1), aspect.ratio = 2/2) +  # 使横坐标竖直显示
   scale_color_manual(values = c("black", "black", "brown", "blue", "brown", "brown", "blue", "blue"))+
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black")+
+  theme(legend.position = "none") 
 
 
 
@@ -91,17 +110,3 @@ widths <- c(5, 5)
 
 
 grid.arrange(p1, p2, nrow = 1, widths = widths)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
