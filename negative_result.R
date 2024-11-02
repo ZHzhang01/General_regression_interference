@@ -59,13 +59,19 @@ X <- scale(X)
 
 
 
-data1 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt", header = FALSE)
-data2 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt", header = FALSE)
-data3 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt", header = FALSE)
-data4 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt", header = FALSE)
-data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
-data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
+#data1 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt", header = FALSE)
+#data2 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt", header = FALSE)
+#data3 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt", header = FALSE)
+#data4 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt", header = FALSE)
+#data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
+#data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
 
+data1 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_X_counter.txt", header = FALSE)
+data2 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_Y0_counter.txt", header = FALSE)
+data3 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_Y1_counter.txt", header = FALSE)
+data4 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_noise_counter.txt", header = FALSE)
+data5 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_ps1_counter.txt", header = FALSE)
+data6 <- read.table("/home/ZhihengZhang/1031/counter/linear_parameter_ps0_counter.txt", header = FALSE)
 X <- as.matrix(data1[, -1])  # 提取向量
 Y_0 <- as.matrix(data2[, -1])  # 提取向量
 Y_1 <- as.matrix(data3[, -1])  # 提取向量
@@ -100,7 +106,7 @@ get_Y <- function(Z){
 
 
 
-tau <- map_dbl(1:10000, ~{
+tau <- map_dbl(1:100000, ~{
   Z <- rbinom(n, size = 1, prob = pscore1); Y <- get_Y(Z)
   T_vec <- Z; D <- Y*T_vec/pscore1-Y*(1-T_vec)/pscore0
   return(mean(D))
@@ -110,7 +116,7 @@ tau <- map_dbl(1:10000, ~{
 tau
 
 
-tau_haj <- map_dbl(1:10000, ~{
+tau_haj <- map_dbl(1:100000, ~{
   Z <- rbinom(n, size = 1, prob = pscore1); Y <- get_Y(Z)
   T_vec <- Z; D <- Y*T_vec/(pscore1*mean(T_vec/pscore1))-Y*(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
   # w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
@@ -129,7 +135,7 @@ sum <- c()
 
 
 ##################################################################################################################################bn = 3
-sim_res<- map_dfr(1:500, ~{
+sim_res<- map_dfr(1:10000, ~{
   A <- diag(n)
   sum <- c(sum,1); print("sum:"); print(length(sum))
   Z <- rbinom(n, size = 1, prob = pscore1); Y <- get_Y(Z); X_aug <- X
@@ -591,17 +597,17 @@ cat("数据已成功写入文本文件(bn = 3):", file_path, "\n")
 ###########################################################################################################################################################################################################
 ###########################################################################################################################################################################################################
 ###########################################################################################################################################################################################################
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_X_counter.txt"
 write.table(X, file = file_path, col.names = FALSE)
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_Y1_counter.txt"
 write.table(Y_1, file = file_path, col.names = FALSE)
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_Y0_counter.txt"
 write.table(Y_0, file = file_path, col.names = FALSE)
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_noise_counter.txt"
 write.table(errors, file = file_path, col.names = FALSE)
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_ps1_counter.txt"
 write.table(pscore1, file = file_path, col.names = FALSE)
-file_path <- "~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt"
+file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_ps0_counter.txt"
 write.table(pscore0, file = file_path, col.names = FALSE)
 
 
