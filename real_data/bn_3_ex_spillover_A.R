@@ -471,7 +471,7 @@ new_G <- cbind(X, rate2, rate3, filtered_data$ex_intensive)
 # new_G <- scale(new_G)
 
 
-
+new_G <- cbind(X, rate2, rate3)
 
 
 
@@ -661,6 +661,7 @@ for(i in 1:10000){
   # X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
   #需要输入地是邻居被treated 的比例：
   X_aug <- cbind(X, get_rate(Z), get_rate_2(Z), Z_sub)
+  X_aug <- cbind(X, get_rate(Z), get_rate_2(Z))
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
   mom_mat <- mom_mat + c(w_haj^2, X_aug*w_haj) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
   mom_mat_lin <- mom_mat_lin + c(w_haj^2, X_aug_lin*w_haj)
@@ -820,7 +821,8 @@ quadratic_function <- function(hbeta) {
   return(result)
 }
 # 使用优化函数找到最小值和对应的位置
-result <- optim( matrix(c(hbeta_2_haj_5,rep(0,3)) ),          quadratic_function)
+#result <- optim( matrix(c(hbeta_2_haj_5,rep(0,3)) ),          quadratic_function)
+result <- optim( matrix(c(hbeta_2_haj_5,rep(0,2)) ),          quadratic_function)
 # 输出最优值和最优位置
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
@@ -853,8 +855,8 @@ quadratic_function <- function(hbeta) {
 }
 # 使用优化函数找到最小值和对应的位置
 
-result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,3),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 3) ))    ,    quadratic_function, control = control)
-#
+#result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,3),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 3) ))    ,    quadratic_function, control = control)
+result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 2) ))    ,    quadratic_function, control = control)
 # 输出最优值和最优位置
 cat("最小值：", result0$value, "\n")
 cat("最优位置：", result0$par, "\n")
