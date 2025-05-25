@@ -39,8 +39,8 @@
 
 ## Additional experiments: response to the Review
 
-### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is
-very large? Are there strategies to reduce computational complexity?
+#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? Are there strategies to reduce computational complexity?
 
+#### d 
 
 
