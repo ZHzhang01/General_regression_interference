@@ -1,4 +1,4 @@
-Here is my code for the work ``General auxiliary variables with approximate neighbourhood interference''.
+**Here is my code for the work ``General auxiliary variables with approximate neighbourhood interference''.**
 
 
 
@@ -23,5 +23,11 @@ Here is my code for the work ``General auxiliary variables with approximate neig
 | **Empirical coverage probability**| 0.952 | 0.959 | 0.961 | 0.959 | 0.957            | 0.961            | 0.960 | 0.952             | 0.024     | 0.958 | 0.958             | 0.134     |
 
 **Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting.
+
+
+
+**Additional experiments: response to the Review**
+
+
 
 
