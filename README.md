@@ -49,5 +49,5 @@
 
 #### When the network is misspecified.
 
-### The multi-valued treatments.
+#### The multi-valued treatments.
 
