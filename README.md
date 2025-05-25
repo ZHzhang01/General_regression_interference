@@ -39,8 +39,15 @@
 
 ## Additional experiments: response to the Review
 
-#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? Are there strategies to reduce computational complexity?
+#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity and could we reduce it?
 
-#### d 
+#### How it performs when we select difeerent $G$ and how to select it?
 
+#### Bandwith selection and comparison?
+
+#### Clarify the experimental settings. a) The population selection; b) The indirect effect is counter-intuitive.
+
+#### When the network is misspecified.
+
+### The multi-valued treatments.
 
