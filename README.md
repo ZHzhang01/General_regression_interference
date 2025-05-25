@@ -1,6 +1,8 @@
 **Here is my code for the work ``General auxiliary variables with approximate neighbourhood interference''.**
 
 
+## The original synthetic result:
+
 
 | Method (linear-in-means)                       | HT    | Haj   | F     | L     | F- $\phi_0(G_1)$ | F- $\phi_0(G_2)$ | ND-F  | ND- $\phi_0(G_1)$ | ND- $G_1$ | ND-L  | ND- $\phi_0(G_2)$ | ND- $G_2$ |
 |----------------------------------|-------|-------|-------|-------|------------------|------------------|-------|-------------------|-----------|-------|-------------------|-----------|
@@ -23,6 +25,15 @@
 | **Empirical coverage probability**| 0.952 | 0.959 | 0.961 | 0.959 | 0.957            | 0.961            | 0.960 | 0.952             | 0.024     | 0.958 | 0.958             | 0.134     |
 
 **Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting.
+
+
+## The original experimental result:
+
+
+
+
+## The original counterfactual result:
+
 
 
 
