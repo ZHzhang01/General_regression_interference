@@ -29,6 +29,25 @@
 
 ## The original real-world result:
 
+| Method                          | HT    | Haj   | F     | L     | ND-F | ND- $\phi_0\left(G_1\right)$ | ND-L | ND- $\phi_0\left(G_2\right)$ |
+|----------------------------------|-------|-------|-------|-------|------|----------------------------|-------|----------------------------|
+| **Direct effect** ( $T_i=\operatorname{Int}_i$ ) |       |       |       |       |      |                            |       |                            |
+| $\hat{\tau}$                     | 0.0082 | 0.0146 | 0.0170 | 0.0168 | 0.0167 | 0.0161                     | 0.0164 | 0.0175                    |
+| **Estimated SE**                 | 0.0272 | 0.0225 | 0.0218 | 0.0197 | 0.0211 | 0.0205                     | 0.0195 | 0.0193                    |
+| **Spillover effect** ( $T_i=\sum_{j=1}^n A_{ij}^{\prime}(1-\text{Delay}) \text{Int}_j>0$ ) |       |       |       |       |      |                            |       |                            |
+| $\hat{\tau}$                     | 0.0381 | 0.0611 | 0.0604 | 0.0581 | 0.0660 | 0.0686                     | 0.0592 | 0.0603                    |
+| **Estimated SE**                 | 0.0447 | 0.0292 | 0.0270 | 0.0241 | 0.0258 | 0.0250                     | 0.0236 | 0.0233                    |
+
+**Table 2**: Estimates $\hat{\tau}$ and Estimated SE of empirical experiments.
+
+
+
+
+
+
+
+
+
 
 
 
