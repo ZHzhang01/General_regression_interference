@@ -27,25 +27,25 @@
 **Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting.
 
 
-## The original experimental result:
+## The original real-world result:
 
 
 
 
-## The original counterfactual result:
+## The original counter-example:
 
 
 
 
 ## Additional experiments: response to the Review
 
-#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity and could we reduce it?
+#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity, and could we reduce it?
 
-#### How it performs when we select difeerent $G$ and how to select it?
+#### How does it perform when we select different $G$, and how do we select it?
 
-#### Bandwith selection and comparison?
+#### Bandwidth selection and comparison?
 
-#### Clarify the experimental settings. a) The population selection; b) The indirect effect is counter-intuitive.
+#### Clarify the experimental settings. a) The population selection; b) The indirect effect is counterintuitive.
 
 #### When the network is misspecified.
 
