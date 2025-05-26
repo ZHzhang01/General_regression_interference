@@ -65,15 +65,30 @@
 
 ## Additional experiments: response to the Review
 
-#### The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity, and could we reduce it?
+#### 1. The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity, and could we reduce it?
 
-#### How does it perform when we select different $G$, and how do we select it?
+Network size diverging from $400, 1000$ to $3000$.
 
-#### Bandwidth selection and comparison?
 
-#### Clarify the experimental settings. a) The population selection; b) The indirect effect is counterintuitive.
+#### 2. How does it perform when we select different $G$, and how do we select it?
 
-#### When the network is misspecified.
+We also choose $G$ as the more complex topological representation.
 
-#### The multi-valued treatments.
+#### 3. Bandwidth selection and comparison?
+
+We test the Bandwidth $=1,2,3,4$.
+
+#### 4. Clarify the experimental settings. a) The population selection; b) The indirect effect is counterintuitive.
+
+a) The population is restricted to these individuals who took part in the second lecture to make sure they receive their friend's information;
+
+b) The indirect effect is significantly positive, which indicates that farmers are more easily affected by their neighbourhood (friends), compared with taking part in the lecture themselves (they absorb the lecture's knowledge slightly, or do not trust it).
+
+#### 5. When the network is misspecified.
+
+When there is an additional/missed edge during the network generation.
+
+#### 6. The multi-valued treatments.
+
+We take the treatments from $2$ to $10$.
 
