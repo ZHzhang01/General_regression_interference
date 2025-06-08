@@ -78,6 +78,18 @@ We also choose $G$ as the more complex topological representation.
 
 We test the Bandwidth $=1,2,3,4$.
 
+| Method (linear-in-means) | HT | Haj | F | L | F- $\phi_0(G_1)$ | F- $\phi_0(G_2)$ | ND-F | ND- $\phi_0(G_1)$ | ND- $G_1$ | ND-L | ND- $\phi_0(G_2)$ | ND- $G_2$ |
+|--------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-----------------------------|-----------------------------|-------------------------|------------------------------|-----------------|-------------------------|------------------------------|-----------------|
+| **Empirical absolute bias** | $\begin{bmatrix}0.001\\\\0.001\end{bmatrix}$ | $\begin{bmatrix}0.001\\\\0.001\end{bmatrix}$ | $\begin{bmatrix}0.000\\\\0.000\end{bmatrix}$ | $\begin{bmatrix}0.000\\\\0.000\end{bmatrix}$ | $\begin{bmatrix}0.001\\\\0.001\end{bmatrix}$ | $\begin{bmatrix}0.001\\\\0.001\end{bmatrix}$ | $\begin{bmatrix}0.000\\\\0.000\end{bmatrix}$ | $\begin{bmatrix}0.001\\\\0.001\end{bmatrix}$ | $\begin{bmatrix}0.895\\\\0.895\end{bmatrix}$ | $\begin{bmatrix}0.000\\\\0.000\end{bmatrix}$ | $\begin{bmatrix}0.002\\\\0.002\end{bmatrix}$ | $\begin{bmatrix}0.998\\\\0.998\end{bmatrix}$ |
+| **Oracle SE** | $\begin{bmatrix}0.295\\\\0.295\end{bmatrix}$ | $\begin{bmatrix}0.293\\\\0.293\end{bmatrix}$ | $\begin{bmatrix}0.260\\\\0.260\end{bmatrix}$ | $\begin{bmatrix}0.260\\\\0.260\end{bmatrix}$ | $\begin{bmatrix}0.235\\\\0.235\end{bmatrix}$ | $\begin{bmatrix}0.233\\\\0.233\end{bmatrix}$ | $\begin{bmatrix}0.260\\\\0.260\end{bmatrix}$ | $\begin{bmatrix}0.235\\\\0.235\end{bmatrix}$ | $\begin{bmatrix}0.466\\\\0.466\end{bmatrix}$ | $\begin{bmatrix}0.260\\\\0.260\end{bmatrix}$ | $\begin{bmatrix}0.236\\\\0.236\end{bmatrix}$ | $\begin{bmatrix}0.822\\\\0.822\end{bmatrix}$ |
+| **Estimated SE** | $\begin{bmatrix}0.294\\\\0.294\end{bmatrix}$ | $\begin{bmatrix}0.292\\\\0.292\end{bmatrix}$ | $\begin{bmatrix}0.259\\\\0.259\end{bmatrix}$ | $\begin{bmatrix}0.259\\\\0.259\end{bmatrix}$ | $\begin{bmatrix}0.232\\\\0.232\end{bmatrix}$ | $\begin{bmatrix}0.232\\\\0.232\end{bmatrix}$ | $\begin{bmatrix}0.259\\\\0.259\end{bmatrix}$ | $\begin{bmatrix}0.231\\\\0.231\end{bmatrix}$ | $\begin{bmatrix}0.230\\\\0.230\end{bmatrix}$ | $\begin{bmatrix}0.259\\\\0.259\end{bmatrix}$ | $\begin{bmatrix}0.233\\\\0.233\end{bmatrix}$ | $\begin{bmatrix}0.230\\\\0.230\end{bmatrix}$ |
+| **Oracle coverage prob.** | $\begin{bmatrix}0.949\\\\0.949\end{bmatrix}$ | $\begin{bmatrix}0.949\\\\0.949\end{bmatrix}$ | $\begin{bmatrix}0.950\\\\0.950\end{bmatrix}$ | $\begin{bmatrix}0.950\\\\0.950\end{bmatrix}$ | $\begin{bmatrix}0.953\\\\0.953\end{bmatrix}$ | $\begin{bmatrix}0.951\\\\0.951\end{bmatrix}$ | $\begin{bmatrix}0.953\\\\0.953\end{bmatrix}$ | $\begin{bmatrix}0.949\\\\0.949\end{bmatrix}$ | $\begin{bmatrix}0.015\\\\0.015\end{bmatrix}$ | $\begin{bmatrix}0.950\\\\0.950\end{bmatrix}$ | $\begin{bmatrix}0.949\\\\0.949\end{bmatrix}$ | $\begin{bmatrix}0.679\\\\0.679\end{bmatrix}$ |
+| **Empirical coverage prob.** | $\begin{bmatrix}0.946\\\\0.946\end{bmatrix}$ | $\begin{bmatrix}0.947\\\\0.947\end{bmatrix}$ | $\begin{bmatrix}0.948\\\\0.948\end{bmatrix}$ | $\begin{bmatrix}0.948\\\\0.948\end{bmatrix}$ | $\begin{bmatrix}0.944\\\\0.944\end{bmatrix}$ | $\begin{bmatrix}0.946\\\\0.946\end{bmatrix}$ | $\begin{bmatrix}0.947\\\\0.947\end{bmatrix}$ | $\begin{bmatrix}0.945\\\\0.945\end{bmatrix}$ | $\begin{bmatrix}0.000\\\\0.000\end{bmatrix}$ | $\begin{bmatrix}0.947\\\\0.947\end{bmatrix}$ | $\begin{bmatrix}0.941\\\\0.941\end{bmatrix}$ | $\begin{bmatrix}0.039\\\\0.039\end{bmatrix}$ |
+
+
+
+
+
 #### 4. Clarify the experimental settings. a) The population selection; b) The indirect effect is counterintuitive.
 
 a) The population is restricted to these individuals who took part in the second lecture to make sure they receive their friend's information;
@@ -93,7 +105,7 @@ When there is an additional/missed edge during the network generation.
 We take the treatments from $2$ to $10$.
 
 #### my own: additional visualisation:
-## 可视化结果
+
 ![网络图](images/output.png)
 
 
