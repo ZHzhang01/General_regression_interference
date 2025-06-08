@@ -92,3 +92,9 @@ When there is an additional/missed edge during the network generation.
 
 We take the treatments from $2$ to $10$.
 
+#### my own: additional visualisation:
+## 可视化结果
+![网络图](images/output.png)
+
+
+
