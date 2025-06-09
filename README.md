@@ -110,7 +110,7 @@ We take the treatments from $2$ to $10$.
 
 
 
-| Covariate X | Noise ε |
-|-------------|---------|
-| ![](figures/output(1).png) | ![](figures/output(2).png) |
+| Network | Covariate X | Noise ε |
+|-------------|---------|-----------|
+| ![](figures/output(1).png) | ![](figures/output(2).png) |![](figures/output(3).png) |
 
