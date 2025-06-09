@@ -24,7 +24,7 @@
 | **Oracle coverage probability**  | 0.950 | 0.947 | 0.949 | 0.949 | 0.947            | 0.948            | 0.947 | 0.949             | 0.337     | 0.949 | 0.949             | 0.945     |
 | **Empirical coverage probability**| 0.952 | 0.959 | 0.961 | 0.959 | 0.957            | 0.961            | 0.960 | 0.952             | 0.024     | 0.958 | 0.958             | 0.134     |
 
-**Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting.
+**Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting. We report the square of oracle SE and estimated SE in our tables for abbreviation.
 
 
 ## The original real-world result:
