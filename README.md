@@ -108,9 +108,9 @@ We take the treatments from $2$ to $10$.
 
 #### my own: additional visualisation:
 
-![figure_network](images/output(1).png)
+![figure_network](images/output (1).png)
 
-![figure_covariate](images/output(2).png)
+![figure_covariate](images/output (2).png)
 
-![figure_noise](images/output(3).png)
+![figure_noise](images/output (3).png)
 
