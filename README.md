@@ -112,5 +112,5 @@ We take the treatments from $2$ to $10$.
 
 | Covariate X | Noise ε |
 |-------------|---------|
-| ![](images/output(1).png) | ![](images/output(2).png) |
+| ![](figures/output(1).png) | ![](figures/output(2).png) |
 
