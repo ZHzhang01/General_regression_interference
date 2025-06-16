@@ -73,6 +73,10 @@
 
 Network size diverging from $400, 1000$ to $3000$.
 
+The complexity:
+a) Theoretically, o(..)
+b) Empiricallyy, ...
+
 
 #### 2. How does it perform when we select different $G$, and how do we select it?
 
