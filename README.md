@@ -96,9 +96,12 @@ $$
 
 and choose $G$ as $G := \sum_{j=1}^n$ higher-order transition matrix $(A)X$.
 
-syn: G high-order information added..(1 observation; 2 guideline)
-real-data: G other information..
-guideline: previous knowledge...
+syn: G high-order information added..
+
+G: (1 observation; 2 guideline)
+
+syn & real-data: 
+guideline: refer to previous knowledge...
 
 
 
