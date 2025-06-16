@@ -84,7 +84,7 @@ $$
 V_i=\alpha_0+\alpha_1 \frac{\sum_{j=1}^n A_{i j} Y_j}{\sum_{j=1}^n A_{i j}}+\alpha_2 \frac{\sum_{j=1}^n A_{i j} D_j}{\sum_{j=1}^n A_{i j}}+\alpha_3 D_i+\alpha_4^{\top} \boldsymbol{X}_i+\varepsilon_i, \quad \text { with } \quad Y_i=f\left(V_i\right)
 $$
 
-where $\alpha_j, j \in\{0,1,2,3\}$ are fixed scalars, $\alpha_1<1$ and $\alpha_4$ are fixed vector; $\varepsilon_i$ 's are random noise. For the linear-in-means model $f(t)=t$, while for the nonlinear contagion model, $f(t)=\mathbf{1}(t \geq 0)$. Under this model, we can specify $\boldsymbol{G}_i \equiv\left(1, D_i, \sum_{j=1}^n A_{i j} D_j / \sum_{j=1}^n A_{i j}, \boldsymbol{X}_i^{\top}\right)^{\top}$. Let $\boldsymbol{O}=\left(A_{i j} / \sum_{l=1}^n A_{i l}\right)_{i, j \in \mathcal{N}_n}$ and $\boldsymbol{\varepsilon}=\left(\varepsilon_1, \ldots, \varepsilon_n\right)^{\top}$. Under the linear-in-means model, we have $\boldsymbol{Y}=\alpha_0\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1} \boldsymbol{1}_n+\alpha_2\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1} \boldsymbol{O} \boldsymbol{D}+\alpha_3\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1} \boldsymbol{D}+\alpha_4\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1} \boldsymbol{X}+$ $\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1} \boldsymbol{\varepsilon}$. Since $\left(\boldsymbol{I}_n-\alpha_1 \boldsymbol{O}\right)^{-1}=\boldsymbol{I}_n+\sum_{k=1}^{\infty} \alpha_1^k \boldsymbol{O}^k$, we can include higher order polynomials of $\boldsymbol{O}$ such as ( $\boldsymbol{O}^k \boldsymbol{D}, \boldsymbol{O}^k \boldsymbol{X}$ ), $k \geq 2$, in set of the auxiliary variables to incorporate the higher order interference.
+We conduct a new GNN-based data generation and choose $G$ as $G := $.
 
 
 
