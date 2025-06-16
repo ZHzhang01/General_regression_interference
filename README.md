@@ -152,10 +152,16 @@ When there is an additional/missed edge during the network generation.
   - Outcome \(Y_i\).
 
 - **Perturbation strategies**:
-  1. **Binary-edge flips**: Randomly flip each \(A_{ij}\) with probability \(\varepsilon\in\{0.1\%, 0.5\%, 1\%\}\).
+  1. **Binary-edge flips**: Randomly flip each \(A_{ij}\) with probability \(\varepsilon\in\{0.1\%, 0.5\%, 1\%, 2\%, ....\}\).
   2. **Continuous random noise**: Add \(U(-\varepsilon, \varepsilon)\) to each entry, then truncate to \([0,1]\).
+  3. **$|A-A'| \leq \epsilon $**:
+  
 
 Perturbed matrices denoted \(A^{(\varepsilon,k)}\), with \(k=1,\dots,K\) Monte Carlo repeats per \(\varepsilon\).
+
+
+Causal inference with misspecified network interference structure
+Bar Weinstein, Daniel Nevo
 
 
 
