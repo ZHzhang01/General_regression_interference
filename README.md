@@ -141,7 +141,7 @@ When there is an additional/missed edge during the network generation.
 
 
 - **Original data components**:
-  - Adjacency matrix \(A\in\{0,1\}^{1000\times1000}\),
+  - Adjacency matrix,
   - Node-level covariates \(X_i\),
   - Treatment indicators \(T_i\),
   - Outcome \(Y_i\).
