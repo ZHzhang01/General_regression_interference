@@ -74,7 +74,7 @@
 Network size diverging from $400, 1000$ to $3000$.
 
 The complexity:
-a) Theoretically, o(..)
+a) Theoretically, O(..) + "O(..)", Fangzhen 1+2； real-data 1
 b) Empirically, MC optimization; beta optimization;
 
 
