@@ -100,8 +100,8 @@ syn: G high-order information added..
 
 G: (1 observation; 2 guideline)
 
-syn & real-data: 
-guideline: refer to previous knowledge...
+syn (report $r^2$) & real-data (report $r^2$): 
+Guideline: refer to previous knowledge...
 
 
 
