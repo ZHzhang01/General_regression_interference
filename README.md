@@ -87,10 +87,10 @@ $$
 We conduct a new GNN-based data generation:
 
 $$
-V_i=\alpha_0+\alpha_1 GNN_function(A, X, D)+\varepsilon_i, \quad \text { with } \quad Y_i=f\left(V_i\right).
+V_i=\alpha_0+\alpha_1 GNN(A, X, D)+\varepsilon_i, \quad \text { with } \quad Y_i=f\left(V_i\right).
 $$
 
-and choose $G$ as $G := \sum_{j=1}^n higher-order transition matrix(A)X$.
+and choose $G$ as $G := \sum_{j=1}^n higher-order~transition~matrix(A)X$.
 
 
 
