@@ -126,10 +126,9 @@ We test the Bandwidth $=1,2,3,4$.
 
 a) The population is restricted to these individuals who took part in the second lecture to make sure they receive their friend's information;
 
-Answer: I a
-
-
 b) The indirect effect is significantly positive, which indicates that farmers are more easily affected by their neighbourhood (friends), compared with taking part in the lecture themselves (they absorb the lecture's knowledge slightly, or do not trust it).
+
+c) If these nodes are not excluded, they will significantly affect our results.
 
 #### 5. When the network is misspecified.
 
