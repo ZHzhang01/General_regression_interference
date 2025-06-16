@@ -100,7 +100,7 @@ syn: G high-order information added..
 
 G: (1 observation; 2 guideline)
 
-syn (report $r^2$) & real-data (report $r^2$): 
+syn (report $r^2$ + generation adding iteration term) & real-data (report $r^2$): 
 Guideline: refer to previous knowledge...
 
 
