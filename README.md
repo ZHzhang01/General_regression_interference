@@ -115,7 +115,7 @@ We test the Bandwidth $=1,2,3,4$.
 
 
 
-改到oracle coveraage pro了
+改到oracle coverage pro了
 
 
 
@@ -137,6 +137,27 @@ c) If these nodes are not excluded, they will significantly affect our results.
 #### 5. When the network is misspecified.
 
 When there is an additional/missed edge during the network generation.
+
+
+
+- **Original data components**:
+  - Adjacency matrix \(A\in\{0,1\}^{1000\times1000}\),
+  - Node-level covariates \(X_i\),
+  - Treatment indicators \(T_i\),
+  - Outcome \(Y_i\).
+
+- **Perturbation strategies**:
+  1. **Binary-edge flips**: Randomly flip each \(A_{ij}\) with probability \(\varepsilon\in\{0.1\%, 0.5\%, 1\%\}\).
+  2. **Continuous random noise**: Add \(U(-\varepsilon, \varepsilon)\) to each entry, then truncate to \([0,1]\).
+
+Perturbed matrices denoted \(A^{(\varepsilon,k)}\), with \(k=1,\dots,K\) Monte Carlo repeats per \(\varepsilon\).
+
+
+
+
+
+
+
 
 #### 6. The multi-valued treatments.
 
