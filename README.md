@@ -153,8 +153,7 @@ When there is an additional/missed edge during the network generation.
 
 - **Perturbation strategies**:
   1. **Binary-edge flips**: Randomly flip each \(A_{ij}\) with probability \(\varepsilon\in\{0.1\%, 0.5\%, 1\%, 2\%, ....\}\). Take attention to the covariance + variance..
-  2. **Continuous random noise**: Add \(U(-\varepsilon, \varepsilon)\) to each entry, then truncate to \([0,1]\).
-  3. **$|A-A'| \leq \epsilon $**:
+
   
 
 Perturbed matrices denoted \(A^{(\varepsilon,k)}\), with \(k=1,\dots,K\) Monte Carlo repeats per \(\varepsilon\).
