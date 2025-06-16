@@ -96,6 +96,10 @@ $$
 
 and choose $G$ as $G := \sum_{j=1}^n$ higher-order transition matrix $(A)X$.
 
+syn: G high-order information added..
+real-data: G other information..
+
+
 
 
 #### 3. Bandwidth selection and comparison?
