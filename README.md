@@ -67,23 +67,6 @@
 
 
 
-## Additional experiments: response to the Review
-
-#### 1. The proposed framework relies on computationally intensive steps (e.g., Monte Carlo approximations for normalization). How does the method scale with large networks, especially when n is very large? The computational complexity, and could we reduce it?
-
-Network size diverging from $400, 1000$ to $3000$.
-
-The complexity:
-a) Theoretically, O(..) + "O(..)", Fangzhen 1+2； real-data 1
-b) Empirically, MC optimization; beta optimization;
-
-
-#### 2. How does it perform when we select different $G$, and how do we select it?
-
-
-
-syn (report $r^2$ + generation adding iteration term) & real-data (report $r^2$): 
-Guideline: refer to previous knowledge...
 
 
 
@@ -105,7 +88,6 @@ We test the Bandwidth $=1,2,3,4$.
 
 
 
-改到oracle coverage pro了
 
 
 
@@ -116,49 +98,10 @@ We test the Bandwidth $=1,2,3,4$.
 
 
 
-#### 4. Clarify the experimental settings. a) The population selection; b) The indirect effect is counterintuitive.
-
-a) The population is restricted to these individuals who took part in the second lecture to make sure they receive their friend's information;
-
-b) The indirect effect is significantly positive, which indicates that farmers are more easily affected by their neighbourhood (friends), compared with taking part in the lecture themselves (they absorb the lecture's knowledge slightly, or do not trust it).
-
-c) If these nodes are not excluded, they will significantly affect our results.
-
-#### 5. When the network is misspecified.
-
-When there is an additional/missed edge during the network generation.
 
 
 
-- **Original data components**:
-  - Adjacency matrix,
-  - Node-level covariates \(X_i\),
-  - Treatment indicators \(T_i\),
-  - Outcome \(Y_i\).
-
-- **Perturbation strategies**:
-  1. **Binary-edge flips**: Randomly flip each \(A_{ij}\) with probability \(\varepsilon\in\{0.1\%, 0.5\%, 1\%, 2\%, ....\}\). Take attention to the covariance + variance..
-
-  
-
-Perturbed matrices denoted \(A^{(\varepsilon,k)}\), with \(k=1,\dots,K\) Monte Carlo repeats per \(\varepsilon\).
-
-
-Causal inference with misspecified network interference structure
-Bar Weinstein, Daniel Nevo
-
-
-
-
-
-
-
-
-#### 6. The multi-valued treatments.
-
-We take the treatments from $2$ to $10$.
-
-#### my own: additional visualisation:
+#### Additional visualisation:
 
 
 
