@@ -13,7 +13,7 @@ We provide the experimental scripts:
 - Experiments in Appendix (Additional Experimental Results):
   - **counter: `negative_result.R`**: Counter example in our Appendix S.4.
   - **modify: `linear_final_attempt_bni.R`**: bandwith selection in our Appendix S.5.
-  - **modify: `syn_modify_misspecification_i.R`**: misspecification in our Appendix S.5.
+  - **modify: `syn_modify_misspecification_i.R`**: misspecification in our Appendix S.5. Note that each round, using a different random seed induces a different misspecification scenario, which in turn leads to small fluctuations in the reported table results. Throughout this process, our method is relatively more robust to the choice of random seed.
 
 
 
