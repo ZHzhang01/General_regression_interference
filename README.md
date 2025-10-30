@@ -113,7 +113,7 @@ This code is for academic and research purposes.
 
 
 
-#### 3. Bandwidth selection and comparison?
+#### Bandwidth selection and comparison?
 
 We test the Bandwidth $=1,2,3,4$.
 
