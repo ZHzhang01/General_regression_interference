@@ -1,4 +1,46 @@
-**Here is my code for the work ``General auxiliary variables with approximate neighbourhood interference''.**
+**Here is the code for the work ``General auxiliary variables with approximate neighbourhood interference''.**
+
+
+
+## Overview
+
+We provide the experimental scripts:
+
+- Experiments in the main body of the paper:
+  - **`ex`**: Real-world experiment in our main text.
+  - **`syn`**: Synthetic experiment in our main text.
+
+- Experiments in Appendix (Additional Experimental Results):
+  - **counter: `negative_result.R`**: Counter example in our Appendix S.4.
+  - **modify: `linear_final_attempt_bni.R`**: bandwith selection in our Appendix S.5.
+  - **modify: `syn_modify_misspecification_i.R`**: misspecification in our Appendix S.5.
+
+
+
+## Running the Experiments
+
+Please run the following commands to execute the experiments. Please make sure to change the data storage path to the one you need.
+
+
+```bash
+# Example:
+
+# Run the counter example
+Rscript negative_result.R
+
+# Run the synthetic experiments
+Rscript linear_final_attempt.R
+Rscript nonlinear_final_attempt.R
+```
+
+
+## License
+
+This code is for academic and research purposes.
+
+
+
+
 
 
 ## The original synthetic result:
