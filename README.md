@@ -43,7 +43,7 @@ This code is for academic and research purposes.
 
 
 
-## The original synthetic result:
+## Synthetic result:
 
 
 | Method (linear-in-means)                       | HT    | Haj   | F     | L     | F- $\phi_0(G_1)$ | F- $\phi_0(G_2)$ | ND-F  | ND- $\phi_0(G_1)$ | ND- $G_1$ | ND-L  | ND- $\phi_0(G_2)$ | ND- $G_2$ |
@@ -73,7 +73,7 @@ This code is for academic and research purposes.
 **Table 1**: Simulation results: network size $n=3000\left(b_n=3\right) . \tau=0.934$ for the linear-in-means setting and $\tau=0.193$ for the nonlinear contagion setting. We report the square of oracle SE and estimated SE in our tables for abbreviation.
 
 
-## The original real-world result:
+## Real-world result:
 
 | Method                          | HT    | Haj   | F     | L     | ND-F | ND- $\phi_0\left(G_1\right)$ | ND-L | ND- $\phi_0\left(G_2\right)$ |
 |----------------------------------|-------|-------|-------|-------|------|----------------------------|-------|----------------------------|
@@ -95,7 +95,7 @@ This code is for academic and research purposes.
 
 
 
-## The original counter-example:
+## Counter-example:
 | Method                          | HT    | Haj   | F     | L     | ND-F | ND-L | ND- $\phi_0$ (G) |
 |----------------------------------|-------|-------|-------|-------|------|------|-------------------|
 | **Empirical absolute bias**      | 0.001 | 0.001 | 0.000 | 0.000 | 0.000 | 0.000 | 0.001             |
@@ -113,7 +113,7 @@ This code is for academic and research purposes.
 
 
 
-#### Bandwidth selection and comparison?
+## Bandwidth selection and comparison:
 
 We test the Bandwidth $=1,2,3,4$.
 
