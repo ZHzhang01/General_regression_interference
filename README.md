@@ -111,7 +111,7 @@ This code is for academic and research purposes.
 
 
 
-
+<!--
 
 ## Bandwidth selection and comparison:
 
@@ -128,7 +128,7 @@ We test the Bandwidth $=1,2,3,4$.
 
 
 
-
+-->
 
 
 
