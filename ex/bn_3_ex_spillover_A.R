@@ -1,4 +1,4 @@
-load("/home/ZhihengZhang/Final_response/ex/703.RData")
+load("/home/lizonghan/zhiheng_1221_github/ex/703.RData")
 #We replicate the ex_spillover with village variable:
 # First, we establish eligible Y; 1) attend the second-round session; 2) at least one friend attending the first round:
 library(Matrix)
