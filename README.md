@@ -1,4 +1,4 @@
-**Here is the code for the work ``General auxiliary variables with approximate neighbourhood interference''.**
+**Here is the code for the work ``General auxiliary variables with approximate neighbourhood interference''.** R version: 4.1.2.
 
 
 
