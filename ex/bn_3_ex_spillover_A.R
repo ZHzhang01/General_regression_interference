@@ -6,19 +6,17 @@ library(igraph)
 library(tidyverse)
 library(stringdist)
 control <- list(abstol = 1e-10, reltol = 1e-10) 
-#真实实验里面是HT的分母是略微有偏的；
 
-#此外把two-side1换成two-side值得尝试
 
-#需要再次预处理，删除一些为0的点；其次重新做G
+
 # X0422analysis <- X0422analysis[complete.cases(X0422analysis),  ] 
 data <- data.frame(ex_name = X0422analysis$id, ex_delay = X0422analysis$delay, ex_intensive = X0422analysis$intensive, ex_buy = X0422analysis$takeup_survey, ex_new =  X0422analysis$insurance_buy)
 # data <- data[complete.cases(data), ]
 
-# 筛选标签为1的行
+
 filtered_data <- data[data$ex_delay == 1& (data$ex_intensive == 0 | 1) & (data$ex_buy == 0|1),  ]
 
-# 输出筛选结果
+# 
 print(filtered_data)
 
 to_remove <- c()
@@ -38,7 +36,7 @@ for (i in 1:nrow(filtered_data)) {
   target_id <- filtered_data$ex_name[i]
   neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
   
-  #对邻居节点进行预处理，筛选出在analysis文件的节点
+
   #case 1
   if (length(neighbor_id) > 0) {
     cat("UserID1:", target_id, "NeighborID:", neighbor_id, "\n")
@@ -73,7 +71,7 @@ for (i in 1:nrow(filtered_data)){
   
   target_id <- filtered_data$ex_name[i]
   neighbor_id <- X0422twoside$network_id[X0422twoside$id == target_id]
-  #之前已经可以保证在邻居id在analysis文件中的个数>0;
+
   tempt <- 0
   tempt_2 <- 0
   # filtered_data_copy <- filtered_data
@@ -89,7 +87,7 @@ for (i in 1:nrow(filtered_data)){
     # if (data$ex_delay[data$ex_name == target_id] == 0){
     #   tempt <- 1 #itself is in the fist round.
     # }
-    #需要包括自己吗？
+    
   }
   
   if (tempt == 0){
@@ -122,22 +120,21 @@ print("we have done!")
 
 
 
-#准备构建filtered_data之间的邻接矩阵：
-# 判断两个ID是否同时存在于data2中的函数
+
 check_ids_exists <- function(row) {
   all(row %in% filtered_data$ex_name)
 }
-# 对每一行进行判断，保留同时存在的行
+
 adj_filter <- user_data[apply(user_data, 1, check_ids_exists), ]
-# 输出最终结果
+
 print(adj_filter)
 
 #here is the adj matrix (sparse);
 # sparse_adj <- sparseMatrix( i = adj_filter$UserID1, j = adj_filter$UserID2, x = c(rep(1,nrow(adj_filter)))   )
-# 创建邻接矩阵
+
 ex_adj_matrix <- matrix(0, nrow = nrow(filtered_data), ncol = nrow(filtered_data))  #注意这里的维度;这是真正使用的邻接矩阵；关注的是这些真正strong的网络
 # identity_mat <- diag(nrow(ex_adj_matrix))
-# 填充邻接矩阵
+
 for (i in 1:nrow(adj_filter)) {
   from_user <- adj_filter$UserID2[i]
   from_user_number <- which(filtered_data$ex_name == from_user)
@@ -146,14 +143,14 @@ for (i in 1:nrow(adj_filter)) {
   ex_adj_matrix[ to_user_number, from_user_number] <- 1
   # ex_adj_matrix[ from_user_number, to_user_number] <- 1
 }
-# 输出邻接矩阵
-print(ex_adj_matrix) #目前仍然是单向网络；按照filtered_data的升序顺序；
+
+print(ex_adj_matrix) 
 
 # ex_adj_matrix <- ex_adj_matrix + identity_mat
 # for (i in 1:nrow(ex_adj_matrix)){
 #   ex_adj_matrix[i,i] <- 1
 # }
-#这里mengsi gao用的约束：friends是不是sample是个问题；这里用的是广义的friends.
+
 
 
 # ex_var_matrix <- matrix(0, nrow = nrow(filtered_data), ncol = nrow(filtered_data))
@@ -166,38 +163,22 @@ print(ex_adj_matrix) #目前仍然是单向网络；按照filtered_data的升序
 # G_ours <- ex_var_matrix/rowSums(ex_var_matrix)
 #here is the normalized matrix for augmentation:
 
-# G <- ex_adj_matrix
-#To avoid the mistake:
-# rows_all_zero <- which(apply(G, 1, function(row) all(row == 0)))
-# cols_all_zero <- which(apply(G, 2, function(col) all(col == 0)))
-# print("全部都是零元素的行索引:")
-# print(rows_all_zero)
-# print("全部都是零元素的列索引:")
-# print(cols_all_zero)
-# # G <- G[-rows_all_zero, -cols_all_zero]
-# if (length(rows_all_zero) > 0) {
-#   G <- G[-rows_all_zero, ]
-# }
-# if (length(cols_all_zero) > 0) {
-#   G <- G[, -cols_all_zero]
-# }
-# print(G)
-# 假设您有一个 n*n 的非负整数矩阵 matrix_data
+
 matrix_data <- ex_adj_matrix # 示例矩阵数据
 
 
-# 对矩阵进行对称化操作
-symmetric_matrix <- matrix(0, nrow = nrow(matrix_data), ncol = ncol(matrix_data))  # 初始化对称化后的矩阵
+
+symmetric_matrix <- matrix(0, nrow = nrow(matrix_data), ncol = ncol(matrix_data))  
 for (i in 1:nrow(matrix_data)) {
   for (j in 1:ncol(matrix_data)) {
-    symmetric_matrix[i, j] <- max(matrix_data[i, j], matrix_data[j, i])  # 将元素替换为 (i, j) 和 (j, i) 元素的最大值
+    symmetric_matrix[i, j] <- max(matrix_data[i, j], matrix_data[j, i])  
   }
 }
-# 输出对称化后的矩阵
+
 matrix_data <- symmetric_matrix
-# 计算矩阵的行和
+
 row_sums <- rowSums(matrix_data)
-# 对非负整数矩阵进行行和归一化
+
 normalized_matrix <- t(apply(matrix_data, 1, function(x) {
   if (sum(x) > 0) {
     normalized_row <- x / sum(x)
@@ -206,7 +187,7 @@ normalized_matrix <- t(apply(matrix_data, 1, function(x) {
   }
   return(normalized_row)
 }))
-# 输出归一化后的矩阵
+
 print(normalized_matrix)
 G <- normalized_matrix
 
@@ -215,10 +196,7 @@ G <- normalized_matrix
 
 
 
-#now we extract the T = int:
-# pscore0 <- 0.5; pscore1 <- 0.5
-#in the spillover effect, we should change it!
-# pscore0 <- pbinom(0 ,size = rowSums(ex_adj_matrix), prob = 0.25);
+
 
 
 
@@ -257,9 +235,9 @@ for (i in 1: nrow(filtered_data)){
   pscore0[i] <- pbinom(0 ,size = elig, prob = 0.5)
   # pscore0[i] <- max(pscore0[i], 0.1)
   # pscore0[i]<-0.5
-  #修改：邻居中所有的delay = 0的个体选出来，然后使用0.5概率
+
   # pscore0[i] <- pbinom(0 ,size = (rowSums(ex_adj_matrix)[i]-1), prob = 0.25)
-  #neighborhood 必须要有 delay = 0, intensive = 1的
+
   if (length(neighbor_id) > 0){
   for (s in 1: length(neighbor_id)){
     # tempt <- 0
@@ -301,11 +279,11 @@ Gau_naive <- (mean(D_haj))
 # #here it is right. HT:variance
 # A <- ((ex_adj_matrix %*% ex_adj_matrix %*% ex_adj_matrix )>0)*1; temp <- eigen(A);  A <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors)
 
-# 创建图对象
+
 g <- graph_from_adjacency_matrix(symmetric_matrix, mode = "undirected")
-# 计算最短路径长度矩阵
+
 shortest_paths_mat <- shortest.paths(g, mode = "all")
-# 输出最短路径长度矩阵
+
 print(shortest_paths_mat)
 
 bn <- 3
@@ -354,7 +332,7 @@ for (i in 1:nrow(filtered_data)) {
 }
 
 
-# 计算中位数
+
 householdsize[is.na(householdsize)] <- 0
 median_householdsize <- median(householdsize, na.rm = TRUE)
 householdsize[is.na(householdsize)] <- floor(median_householdsize)
@@ -380,7 +358,7 @@ understand[is.na(understand)] <- 0
 median_understand <- median(understand, na.rm = TRUE)
 understand[is.na(understand)] <- floor(median_understand)
 
-# 对于小于中位数的取0，大于中位数的取1
+
 householdsize_final <- ifelse(householdsize < median_householdsize, -1, 1)
 ricearea_final <- ifelse(ricearea < median_ricearea, -1, 1)
 riceinc_final <- ifelse(riceinc < median_riceinc, -1, 1)
@@ -403,13 +381,13 @@ X <- cbind(householdsize_final, ricearea_final, riceinc_final, edu_final, repay_
 
 cluster_record <- X0422analysis$onehot_cluster[X0422analysis$id %in% filtered_data$ex_name == 1, ]
 zero_cols_idx <- apply(cluster_record, 2, function(x) all(x == 0))
-# 删除所有元素均为0的列并输出剩下的矩阵
+
 cluster_record <- cluster_record[, !zero_cols_idx]
 col_sums <- colSums(cluster_record)
-# 提取位于前五名的五列
+
 top_five_cols <- tail(order(col_sums), 40)
 cluster_record <- cluster_record[, top_five_cols]
-#删除全部为0的列
+
 X <- cbind(X, cluster_record)
 X <- cbind(X)
 
@@ -417,7 +395,7 @@ X <- cbind(X)
 X <- scale(X)
 
 village_num <- c()
-#计算每个village中的intensive个数:
+
 for (i in 1: nrow(filtered_data)){
   count <- X0422analysis$vi_cluster[X0422analysis$id == filtered_data$ex_name[i]]
   village_num <- c(village_num, count)
@@ -427,16 +405,13 @@ ourG <- cbind(X, village_num)
 ourG <- scale(ourG)
 
 village_num <- c()
-#计算每个village中的intensive个数:
+
 for (i in 1: nrow(filtered_data)){
   count <- X0422analysis$vi_cluster[X0422analysis$id == filtered_data$ex_name[i]]  #记录村庄序号
   village_num <- c(village_num, count)
 }
 
-# for (i in 1:47){
-#   vil_people_num <- sum(village_num == i)  #可以输出每个村庄的人数；
-# }
-# colSums(X0422analysis$onehot_cluster) #可以输出每个村庄的人数；
+
 
 vil_people_rate <- c()
 for (i in 1:47){
@@ -450,13 +425,13 @@ for (i in 1:47){
   }
   vil_people_rate <- c(vil_people_rate, vil_people_D)
 }
-#这是每个村庄内参与intensive的比例
+
 rate <- c()
 for (i in 1:nrow(filtered_data)){
   count <- X0422analysis$vi_cluster[X0422analysis$id == filtered_data$ex_name[i]]  #记录村庄序号
   rate <- c(rate, vil_people_rate[count])
 }
-#再观察朋友中intensive的比例：
+
 rate2 <- c()
 rate3 <- c()
 rate4 <- c()
@@ -567,7 +542,7 @@ get_T <- function(Z){
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
     
     
-    #neighborhood 必须要有 delay = 0, intensive = 1的
+
     for (s in 1: length(neighbor_id)){
       if (neighbor_id[s] %in% X0422analysis$id){
         if ( X0422analysis$tempt_Z[X0422analysis$id == neighbor_id[s] ] ==1 & X0422analysis$delay[X0422analysis$id == neighbor_id[s] ] == 0  )
@@ -590,7 +565,7 @@ get_rate <- function(Z){
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
     
     
-    #neighborhood 计算intensive = 1的个数
+
     rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * (1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     # rate_2[i] <- sum((1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     
@@ -608,7 +583,7 @@ get_rate_2 <- function(Z){
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
     
     
-    #neighborhood 计算intensive = 1的个数
+    
     # rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * (1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     rate_2[i] <- sum((1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     
@@ -659,7 +634,7 @@ for(i in 1:10000){
   w_haj <- TZ/(pscore1*mean(TZ/pscore1))-(1-TZ)/(pscore0*mean((1-TZ)/pscore0)) #They are both $n*1$ vectors;
   
   # X_aug <- new_G #in each simulation, we need compute the new $X_aug$ (n*4);
-  #需要输入地是邻居被treated 的比例：
+
   X_aug <- cbind(X, get_rate(Z), get_rate_2(Z), Z_sub)
   X_aug <- cbind(X, get_rate(Z), get_rate_2(Z))
   X_aug_lin <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
@@ -724,7 +699,7 @@ orth_coef_haj_lin <- mom_mat_lin[, 2:(1+ (ncol(new_G) )*2 )] / mom_mat_lin[, 1]
 
 
 
-#T_vec不能变
+
 
 
 w <- T_vec/pscore1-(1-T_vec)/pscore0
@@ -750,7 +725,7 @@ X_db <- X
 D_2 <- X_db*w
 #D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# 删除所有元素均为0的列并输出剩下的矩阵
+
 X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
@@ -759,9 +734,9 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 result <- optim( beta_gao_f,          quadratic_function, control = control)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj_5 <- result$par
@@ -780,7 +755,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
@@ -789,9 +764,9 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 result <- optim( beta_gao_lin,          quadratic_function, control = control)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj_4 <- result$par
@@ -812,7 +787,7 @@ D_2 <- X_db*w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 # D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
@@ -820,10 +795,10 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 #result <- optim( matrix(c(hbeta_2_haj_5,rep(0,3)) ),          quadratic_function)
 result <- optim( matrix(c(hbeta_2_haj_5,rep(0,2)) ),          quadratic_function)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj <- result$par
@@ -840,11 +815,7 @@ print(var_Ours_newG_haj_plus)
 X_db <- new_G #we revise it!
 X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 X_db <- X_db - w_haj * (orth_coef_haj_lin) 
-# X_db <- scale(X_db)
-# X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
-# D_2 <- scale(X_db*w, scale = FALSE)
-# zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
@@ -853,11 +824,11 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 
 #result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,3),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 3) ))    ,    quadratic_function, control = control)
 result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0, 2) ))    ,    quadratic_function, control = control)
-# 输出最优值和最优位置
+
 cat("最小值：", result0$value, "\n")
 cat("最优位置：", result0$par, "\n")
 hbeta_2_haj_4 <- result0$par
@@ -912,19 +883,14 @@ res <- tibble(Leung, Gau_naive, Gao_F, Gao_L, Ours_X_haj_plus, Ours_newG_haj_plu
 print(res, n = Inf, width = Inf)
 
 
-# # 指定要保存的文件路径
-# file_path <- "result.txt"
-# # 将数据写入文本文件
-# write.table(res, file = "/Users/zhangzhiheng/regression_interference/result.txt", col.names = FALSE)
-# # 提示数据已成功写入文件
-# cat("数据已成功写入文本文件:", file_path, "\n")
 
 
-#第二套
+
+
 file_path <- "/home/ZhihengZhang/Final_response/ex/bn_3_ex_spillover_A.txt"
-# 将数据写入文本文件
+
 write.table(res, file = "/home/ZhihengZhang/Final_response/ex/bn_3_ex_spillover_A.txt", col.names = FALSE)
-# 提示数据已成功写入文件
+
 cat("数据已成功写入文本文件:", file_path, "\n")
 
 
