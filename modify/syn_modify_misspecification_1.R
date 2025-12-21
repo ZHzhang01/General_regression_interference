@@ -118,9 +118,9 @@ X <-rnorm(n) %>% scale(scale = FALSE); epsilon <- errors
 
 
 # 
-data1 <- read.table("/home/ZhihengZhang/Final_response/syn/linear_parameter_X.txt", header = FALSE)
-data2 <- read.table("/home/ZhihengZhang/Final_response/syn/linear_parameter_G.txt", header = FALSE)
-data3 <- read.table("/home/ZhihengZhang/Final_response/syn/linear_parameter_noise.txt", header = FALSE)
+data1 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_X.txt", header = FALSE)
+data2 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_G.txt", header = FALSE)
+data3 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_noise.txt", header = FALSE)
 
 
 # data1 <- read.table("/home/lizonghan/linear_parameter_X.txt", header = FALSE)
