@@ -66,12 +66,12 @@ X <- scale(X,center = T, scale = F)
 #data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
 #data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
 
-data1 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_X_counter.txt", header = FALSE)
-data2 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_Y0_counter.txt", header = FALSE)
-data3 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_Y1_counter.txt", header = FALSE)
-data4 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_noise_counter.txt", header = FALSE)
-data5 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_ps1_counter.txt", header = FALSE)
-data6 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_ps0_counter.txt", header = FALSE)
+data1 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_X_counter.txt", header = FALSE)
+data2 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y0_counter.txt", header = FALSE)
+data3 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y1_counter.txt", header = FALSE)
+data4 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_noise_counter.txt", header = FALSE)
+data5 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps1_counter.txt", header = FALSE)
+data6 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps0_counter.txt", header = FALSE)
 
 
 X <- as.matrix(data1[, -1])  
