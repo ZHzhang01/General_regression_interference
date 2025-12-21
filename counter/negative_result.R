@@ -8,7 +8,7 @@ if (!requireNamespace("Matrix", quietly = TRUE)) {
 }
 library(Matrix)
 ##########
-# 加载必要的包
+# 
 if (!requireNamespace("quadprog", quietly = TRUE)) {
   install.packages("quadprog")
 }
@@ -74,12 +74,12 @@ data5 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_
 data6 <- read.table("/home/ZhihengZhang/Final_response/counter/linear_parameter_ps0_counter.txt", header = FALSE)
 
 
-X <- as.matrix(data1[, -1])  # 提取向量
-Y_0 <- as.matrix(data2[, -1])  # 提取向量
-Y_1 <- as.matrix(data3[, -1])  # 提取向量
-errors <- as.vector(data4[, -1])   # 提取向量
-pscore1 <-  as.vector(data5[, -1])   # 提取向量
-pscore0 <-  as.vector(data6[, -1])   # 提取向量
+X <- as.matrix(data1[, -1])  
+Y_0 <- as.matrix(data2[, -1])  
+Y_1 <- as.matrix(data3[, -1])  
+errors <- as.vector(data4[, -1])   
+pscore1 <-  as.vector(data5[, -1])   
+pscore0 <-  as.vector(data6[, -1])   
 
 
 
@@ -192,7 +192,7 @@ sim_res<- map_dfr(1:100000, ~{
   
   
   ######################################################Ours_X_lin##################################################################
-  #Moreover, we use the lin's method!  X+Haj+lin；lin的第四种
+  #Moreover, we use the lin's method!  X+Haj+lin；
   X_db <- X #it is n*4;  n*1,  n*4
   X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
   #here we use...
@@ -210,7 +210,7 @@ sim_res<- map_dfr(1:100000, ~{
   #   return(result)
   # }
   # result <- optim( vector("logical", length = 2    ) * 1,          quadratic_function)
-  # # # 输出最优值和最优位置
+  # 
   # cat("最小值：", result$value, "\n")
   # hbeta_2_haj <- result$par
   
@@ -227,7 +227,7 @@ sim_res<- map_dfr(1:100000, ~{
   
   
   ###################################################Ours_X_Phi############################################################
-  #Moreover, we use the lin's method!  X+Haj+lin；lin的第四种
+  #Moreover, we use the lin's method!  X+Haj+lin；
   X_db <- X #it is n*4;  n*1,  n*4
   X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
   #here we use...
@@ -245,7 +245,7 @@ sim_res<- map_dfr(1:100000, ~{
   #   return(result)
   # }
   # result <- optim( vector("logical", length = 2    ) * 1,          quadratic_function)
-  # # # 输出最优值和最优位置
+  # 
   # cat("最小值：", result$value, "\n")
   # hbeta_2_haj <- result$par
   
@@ -378,7 +378,7 @@ sim_res<- map_dfr(1:100000, ~{
   coverage_Gao <- abs(Gao-tau)<=qnorm(0.975)*sqrt(var_Gao)
   coverage_Gao_naive <- abs(Gao-tau)<=qnorm(0.975)*sqrt(var_Gao_naive)
   
-  #重新按照我们的方法试验：
+  #
   # beta_gao_f <- matrix(cbind( lm_haj %>% coef() %>% .[3],lm_haj %>% coef() %>% .[4],lm_haj %>% coef() %>% .[5],  lm_haj %>% coef() %>% .[6],lm_haj %>% coef() %>% .[7],lm_haj %>% coef() %>% .[8] ))
   # var_Gao_naive <- t(D  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
   # var_Gao_naive_plus <- t(D -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) ) %*%A %*% (D  -(mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )/n^2 %>% as.vector()
@@ -493,11 +493,11 @@ oracle_plus <- c()
 
 
 sim_res_oracle_cover <- map_dfr(1:1, ~{
-  # 定义变量名称列表
+  # 
   variables <- c('Leung', 'Gao', 'Gao_F', 'Gao_L',   'Ours_X_haj',    'Ours_X_haj_lin', 'Ours_X_haj_lin_phi')
   # variables_plus <- c('Leung_plus', 'Gao', 'Gao_F', 'Gao_L',  'Ours_G_haj_plus', 'Ours_X_ht_plus', 'Ours_X_haj_plus', 'Ours_G_ht_lin_plus', 'Ours_G_haj_lin_plus', 'Ours_X_ht_lin_plus', 'Ours_X_haj_lin_plus')
   
-  # 循环替换变量名称并计算结果
+  # 
   for (var in variables) {
     o_coverage <- mean(abs(sim_res[[var]] - tau) <= qnorm(0.975) * sd(sim_res[[var]]) )
     cat("Oracle Coverage for", var, ":", o_coverage, "\n")
@@ -536,14 +536,14 @@ return(tibble(oracle, oracle_plus))
 
 
 
-# 指定要保存的文件路径
+# 
 file_path <- "/home/ZhihengZhang/Final_response/counter/result_synthetic.txt"
 # file_path <- "/home/ZhihengZhang/syn_total_new/result_synthetic.txt"
 #file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
 
 
 
-# 将数据写入文本文件
+# 
 #truth
 write.table(tau, file = file_path, col.names = FALSE)
 
@@ -587,7 +587,7 @@ write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*index+1):
 
 
 ###########################################################################################################################################################################################################
-# 提示数据已成功写入文件
+#
 cat("数据已成功写入文本文件(bn = 3):", file_path, "\n")
 ###########################################################################################################################################################################################################
 ###########################################################################################################################################################################################################
