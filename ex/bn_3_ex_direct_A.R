@@ -1,4 +1,4 @@
-load("/home/lizonghan/zhiheng_1221_github/counter/ex/703.RData")
+load("/home/lizonghan/zhiheng_1221_github/ex/703.RData")
 # First, we establish eligible Y; 1) attend the second-round session; 2) at least one friend attending the first round:
 library(Matrix)
 library(igraph)
