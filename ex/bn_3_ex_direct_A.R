@@ -13,28 +13,6 @@ control <- list(abstol = 1e-10, reltol = 1e-10)
 data <- data.frame(ex_name = X0422analysis$id, ex_delay = X0422analysis$delay, ex_intensive = X0422analysis$intensive, ex_buy = X0422analysis$takeup_survey)
 
 
-###################add new covariate: village:########################
-# # 根据 village 列创建新的 vilid 列
-# data$vilid <- as.numeric(as.factor(data$village))
-# # 对 vilid 列进行摘要统计
-# summary(data$vilid)
-# # 创建虚拟指标变量
-# cluster <- model.matrix(~ vilid - 1, data = data)
-# X0422analysis$vi_cluster <- cluster
-
-# # 假设有一个 n 维整数列向量 int_vector
-# int_vector <- X0422analysis$vi_cluster  # 示例整数列向量
-# # # 假设您有一个 n 维整数列向量 int_vector
-# # int_vector <- c(25, 10, 33, 19)  # 示例整数列向量
-# # 将整数列向量转换为 one-hot 编码
-# one_hot_matrix <- matrix(0, nrow = length(int_vector), ncol = 47)
-# for (i in 1:length(int_vector)) {
-#   one_hot_matrix[i, int_vector[i]] <- 1
-# }
-# # 输出结果
-# print(one_hot_matrix)
-# X0422analysis$onehot_cluster <- one_hot_matrix
-#here we add the onehot matrix already.
 
 
 ###########end: add new covariate: village####################
@@ -56,7 +34,7 @@ for (i in 1:nrow(filtered_data)) {
   target_id <- filtered_data$ex_name[i]
   neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
   
-  #对邻居节点进行预处理，筛选出在analysis文件的节点
+  #
   #case 1
   if (length(neighbor_id) > 0) {
     cat("UserID1:", target_id, "NeighborID:", neighbor_id, "\n")
@@ -122,21 +100,21 @@ filtered_data <- filtered_data[-to_remove,]
 print("we have done!")
 
 
-# 判断两个ID是否同时存在于data2中的函数
+# 
 check_ids_exists <- function(row) {
   all(row %in% filtered_data$ex_name)
 }
-# 对每一行进行判断，保留同时存在的行
+# 
 adj_filter <- user_data[apply(user_data, 1, check_ids_exists), ]
-# 输出最终结果
+# 
 print(adj_filter)
 #here is the adj matrix (sparse);
 # sparse_adj <- sparseMatrix( i = adj_filter$UserID1, j = adj_filter$UserID2, x = c(rep(1,nrow(adj_filter)))   )
-# 创建邻接矩阵
+# 
 ex_adj_matrix <- matrix(0, nrow = nrow(filtered_data), ncol = nrow(filtered_data))
 # ex_adj_matrix <- diag(rep(1,  nrow(filtered_data))).  # what should we choose?
 # identity_mat <- diag(nrow(ex_adj_matrix))
-# 填充邻接矩阵
+# 
 for (i in 1:nrow(adj_filter)) {
   from_user <- adj_filter$UserID2[i]
   from_user_number <- which(filtered_data$ex_name == from_user)
@@ -145,29 +123,29 @@ for (i in 1:nrow(adj_filter)) {
   ex_adj_matrix[ to_user_number, from_user_number] <- 1
   # ex_adj_matrix[  from_user_number, to_user_number] <- 1
 }
-# 输出邻接矩阵
-print(ex_adj_matrix) #目前仍然是单向网络；按照filtered_data的升序顺序；
+# 
+print(ex_adj_matrix) 
 
 # ex_adj_matrix <- ex_adj_matrix + identity_mat
 # for (i in 1:nrow(ex_adj_matrix)){
 #   ex_adj_matrix[i,i] <- 1
 # }
-#这里mengsi gao用的约束：friends是不是sample是个问题；这里用的是广义的friends.
+#
 
 
-matrix_data <- ex_adj_matrix # 示例矩阵数据
-# 对矩阵进行对称化操作
-symmetric_matrix <- matrix(0, nrow = nrow(matrix_data), ncol = ncol(matrix_data))  # 初始化对称化后的矩阵
+matrix_data <- ex_adj_matrix # 
+# 
+symmetric_matrix <- matrix(0, nrow = nrow(matrix_data), ncol = ncol(matrix_data))  # 
 for (i in 1:nrow(matrix_data)) {
   for (j in 1:ncol(matrix_data)) {
-    symmetric_matrix[i, j] <- max(matrix_data[i, j], matrix_data[j, i])  # 将元素替换为 (i, j) 和 (j, i) 元素的最大值
+    symmetric_matrix[i, j] <- max(matrix_data[i, j], matrix_data[j, i])  # 
   }
 }
-# 输出对称化后的矩阵
+#
 matrix_data <- symmetric_matrix
-# 计算矩阵的行和
+# 
 row_sums <- rowSums(matrix_data)
-# 对非负整数矩阵进行行和归一化
+# 
 normalized_matrix <- t(apply(matrix_data, 1, function(x) {
   if (sum(x) > 0) {
     normalized_row <- x / sum(x)
@@ -176,7 +154,7 @@ normalized_matrix <- t(apply(matrix_data, 1, function(x) {
   }
   return(normalized_row)
 }))
-# 输出归一化后的矩阵
+# 
 print(normalized_matrix)
 G <- normalized_matrix
 
@@ -212,11 +190,11 @@ Gau_naive <- (mean(D_haj))
 # A <- ((ex_adj_matrix %*% ex_adj_matrix  %*% ex_adj_matrix )>0)*1; temp <- eigen(A);  A_p <- (temp$vectors)%*%diag((temp$values)*(temp$values>0))%*%solve(temp$vectors)
 
 
-# 创建图对象
+# 
 g <- graph_from_adjacency_matrix(symmetric_matrix, mode = "undirected")
-# 计算最短路径长度矩阵
+# 
 shortest_paths_mat <- shortest.paths(g, mode = "all")
-# 输出最短路径长度矩阵
+# 
 print(shortest_paths_mat)
 
 bn <- 3
@@ -271,7 +249,7 @@ for (i in 1:nrow(filtered_data)) {
 }
 
 
-# 计算中位数
+# 
 householdsize[is.na(householdsize)] <- 0
 median_householdsize <- median(householdsize, na.rm = TRUE)
 householdsize[is.na(householdsize)] <- floor(median_householdsize)
@@ -297,7 +275,7 @@ understand[is.na(understand)] <- 0
 median_understand <- median(understand, na.rm = TRUE)
 understand[is.na(understand)] <- floor(median_understand)
 
-# 对于小于中位数的取0，大于中位数的取1
+#
 householdsize_final <- ifelse(householdsize < median_householdsize, -1, 1)
 ricearea_final <- ifelse(ricearea < median_ricearea, -1, 1)
 riceinc_final <- ifelse(riceinc < median_riceinc, -1, 1)
@@ -321,29 +299,29 @@ X <- cbind(householdsize_final, ricearea_final, riceinc_final, edu_final, repay_
 # filtered_data <- data[data$ex_delay == 1& (data$ex_intensive == 0 | 1) & (data$ex_buy == 0|1), ]
 cluster_record <- X0422analysis$onehot_cluster[X0422analysis$id %in% filtered_data$ex_name == 1, ]
 zero_cols_idx <- apply(cluster_record, 2, function(x) all(x == 0))
-# 删除所有元素均为0的列并输出剩下的矩阵
+#
 cluster_record <- cluster_record[, !zero_cols_idx]
 col_sums <- colSums(cluster_record)
-# 提取位于前五名的五列
+#
 top_five_cols <- tail(order(col_sums), 40)
 cluster_record <- cluster_record[, top_five_cols]
-#删除全部为0的列
+#
 X <- cbind(X, cluster_record)
 # X <- cbind(X, del)
 X <- scale(X)
 # X <- X[,1:6 ]
 # X <- X[, 1:6]
 village_num <- c()
-#计算每个village中的intensive个数:
+#
 for (i in 1: nrow(filtered_data)){
   count <- X0422analysis$vi_cluster[X0422analysis$id == filtered_data$ex_name[i]]  #记录村庄序号
   village_num <- c(village_num, count)
 }
 
 # for (i in 1:47){
-#   vil_people_num <- sum(village_num == i)  #可以输出每个村庄的人数；
+#   vil_people_num <- sum(village_num == i)  
 # }
-# colSums(X0422analysis$onehot_cluster) #可以输出每个村庄的人数；
+# colSums(X0422analysis$onehot_cluster) 
 
 vil_people_rate <- c()
 for (i in 1:47){
@@ -357,13 +335,13 @@ for (i in 1:47){
    }
   vil_people_rate <- c(vil_people_rate, vil_people_D)
 }
-#这是每个村庄内参与intensive的比例
+#
 rate <- c()
 for (i in 1:nrow(filtered_data)){
   count <- X0422analysis$vi_cluster[X0422analysis$id == filtered_data$ex_name[i]]  #记录村庄序号
   rate <- c(rate, vil_people_rate[count])
 }
-#再观察朋友中intensive的比例：
+#
 rate2 <- c()
 rate3 <- c()
 rate4 <- c()
@@ -477,14 +455,14 @@ get_X <- function(X,Z,G){
 
 get_rate <- function(Z){
   rate <- numeric(nrow(filtered_data))
-  #对于每一个filtered_data:
+  #
   X0422analysis$tempt_Z_direct <- Z
   for (i in 1: nrow(filtered_data)){
     target_id <- filtered_data$ex_name[i]
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
     
     
-    #neighborhood 计算intensive = 1的个数
+    #
     rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * X0422analysis$intensive[X0422analysis$id %in% neighbor_id] ) / length(neighbor_id)
   }
   return(rate)
@@ -497,7 +475,7 @@ get_rate_2 <- function(Z){
     neighbor_id <- user_data$UserID2[user_data$UserID1 == target_id]
     
     
-    #neighborhood 计算intensive = 1的个数
+    
     # rate[i] <- sum( X0422analysis$tempt_Z[X0422analysis$id %in% neighbor_id] * (1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     rate_2[i] <- sum((1-X0422analysis$delay[X0422analysis$id %in% neighbor_id] )) / length(neighbor_id)
     
@@ -511,16 +489,6 @@ get_rate_2 <- function(Z){
 
 
 
-#I have done here!!!!!
-# mom_mat <- matrix(0, nrow = n, ncol = 1+1+ 2 +ncol(X)*2 )
-# for(i in 1:20000){
-#   Z <- rbinom(n, size = 1, prob = 0.5);  X_aug <- get_X(X,Z, G ) #in each simulation, we need compute the new $X_aug$ (n*4);
-#   X_aug <- cbind(X_aug, 1)
-#   w <- Z/pscore1-(1-Z)/pscore0 #They are both $n*1$ vectors;
-#   mom_mat <- mom_mat + c(w^2, X_aug*w) # for each simulation process, the left is $w^2$ (n*1 vector), the right is $(w * X_aug)$ (n*4 vector);
-# }
-# orth_coef <- mom_mat[, 2: (1+1+ 2 +ncol(X)*2)] / mom_mat[, 1]
-# #G can be self modified!
 
 mom_mat <- matrix(0, nrow = n, ncol = (1 + ncol(new_G)) )
 mom_mat_lin <- matrix(0, nrow = n, ncol = 1+ ( ncol(new_G)) * 2  )
@@ -568,7 +536,7 @@ orth_coef_haj_lin <- mom_mat_lin[, 2: (1+ ( ncol(new_G)) * 2)  ] / mom_mat_lin[,
 
 
 
-#T_vec不能变!
+
 
 w <- T_vec/pscore1-(1-T_vec)/pscore0
 w_haj <- T_vec/(pscore1*mean(T_vec/pscore1))-(1-T_vec)/(pscore0*mean((1-T_vec)/pscore0))
@@ -592,7 +560,7 @@ X_db <- X
 D_2 <- X_db*w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 # D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
@@ -600,9 +568,9 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 result <- optim( beta_gao_f,          quadratic_function)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj_5 <- result$par
@@ -622,7 +590,7 @@ X_db <- cbind(X_aug * T_vec, X_aug * (1-T_vec))
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
@@ -631,9 +599,9 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 result <- optim( beta_gao_lin,          quadratic_function)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj_4 <- result$par
@@ -652,7 +620,7 @@ X_db <- X_db - w_haj * (orth_coef_haj)
 D_2 <- X_db*w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 # D_2 <- X_db * w
 quadratic_function <- function(hbeta) {
@@ -660,9 +628,9 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 result <- optim( matrix(c(hbeta_2_haj_5,   rep(0,2)  ) ),          quadratic_function)
-# 输出最优值和最优位置
+
 cat("最小值：", result$value, "\n")
 cat("最优位置：", result$par, "\n")
 hbeta_2_haj <- result$par
@@ -683,7 +651,7 @@ X_db <- X_db - w_haj * (orth_coef_haj_lin)
 # X_db <- cbind(X_db * T_vec, X_db * (1-T_vec))
 # D_2 <- scale(X_db*w, scale = FALSE)
 # zero_cols_idx <- apply(X_db, 2, function(x) all(x == 0))
-# # 删除所有元素均为0的列并输出剩下的矩阵
+
 # X_db <- X_db[, !zero_cols_idx]
 D_2 <- X_db * w
 D_2 <- D_2 - (as.matrix(w_1) %*%  t(as.matrix(colMeans(X_db*w_haj_1)) ) - as.matrix(w_0) %*%  t(as.matrix(colMeans(X_db*w_haj_0)) ))
@@ -692,11 +660,11 @@ quadratic_function <- function(hbeta) {
   result<- sqrt(result)
   return(result)
 }
-# 使用优化函数找到最小值和对应的位置
+
 
 result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0,2)  ) ) ,    quadratic_function, control = control )  
 #
-# 输出最优值和最优位置
+
 cat("最小值：", result0$value, "\n")
 cat("最优位置：", result0$par, "\n")
 hbeta_2_haj_4 <- result0$par
@@ -731,18 +699,13 @@ print(res, n = Inf, width = Inf)
 
 
 
-# # 指定要保存的文件路径
-# file_path <- "result.txt"
-# # 将数据写入文本文件
-# write.table(res, file = "/Users/zhangzhiheng/regression_interference/result.txt", col.names = FALSE)
-# # 提示数据已成功写入文件
-# cat("数据已成功写入文本文件:", file_path, "\n")
+
 
 
 file_path <- "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt"
-# 将数据写入文本文件
+
 write.table(res, file = "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt", col.names = FALSE)
-# 提示数据已成功写入文件
+
 cat("数据已成功写入文本文件:", file_path, "\n")
 
 
