@@ -34,32 +34,23 @@ g <- graph_from_adjacency_matrix(as.matrix(E), mode = "undirected")
 avg_path_length <- mean_distance(g)
 
 
-#we need to make sure the degree is at least 1, naturally
-#To avoid the mistake:
-# rows_all_zero <- which(apply(E, 1, function(row) all(row == 0)))
-# cols_all_zero <- which(apply(E, 2, function(col) all(col == 0)))
-# # print("全部都是零元素的行索引:")
-# # print(rows_all_zero)
-# # print("全部都是零元素的列索引:")
-# # print(cols_all_zero)
-# E <- E[-rows_all_zero, ]
-# E <- E[, -cols_all_zero]
 
 
 
 
 
 
-# 寻找所有节点相连的边
+
+
 connected_edges <- which(E != 0, arr.ind = TRUE)
 
-# 获取所有节点
+
 nodes <- unique(c(connected_edges[, 1], connected_edges[, 2]))
 
-# 创建新的对称邻接矩阵E_new
+
 E_new <- matrix(0, nrow = length(nodes), ncol = length(nodes))
 
-# 更新邻接矩阵
+
 for (i in 1:nrow(connected_edges)) {
   row <- connected_edges[i, 1]
   col <- connected_edges[i, 2]
@@ -69,7 +60,7 @@ for (i in 1:nrow(connected_edges)) {
 
 
 
-print("删除没有节点相连的边后的对称邻接矩阵E_new：")
+
 print(E_new)
 
 E <- E_new
@@ -106,44 +97,19 @@ n <- ncol(G)
 errors <- rnorm(n) + (positions[,1] - 0.5)
 X <-rnorm(n) %>% scale(scale = FALSE); epsilon <- errors
 
-#目前效果很好：
-# file_path <- "linear_parameter_X.txt"
-# write.table(X, file = file_path, col.names = FALSE)
-# file_path <- "linear_parameter_G.txt"
-# write.table(G, file = file_path, col.names = FALSE)
-# file_path <- "linear_parameter_noise.txt"
-# write.table(errors, file = file_path, col.names = FALSE)
 
 
 
 
 
 
-# 
-# data1 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_X.txt", header = FALSE)
-# data2 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_G.txt", header = FALSE)
-# data3 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_noise.txt", header = FALSE)
+
 data1 <- read.table(file.path(repo_root, "syn", "linear_parameter_X.txt"), header = FALSE)
 data2 <- read.table(file.path(repo_root, "syn", "linear_parameter_G.txt"), header = FALSE)
 data3 <- read.table(file.path(repo_root, "syn", "linear_parameter_noise.txt"), header = FALSE)
-# 
-#data1 <- read.table("~/regression_interference_server/previous_data/syn_total_new/linear_parameter_X.txt", header = FALSE)
-#data2 <- read.table("~/regression_interference_server/previous_data/syn_total_new/linear_parameter_G.txt", header = FALSE)
-#data3 <- read.table("~/regression_interference_server/previous_data/syn_total_new/linear_parameter_noise.txt", header = FALSE)
-# ~/regression_interference_server/previous_data/syn_total_new
-#
-#
-#
-#
-#
-#extract data from table instead!!!:
-# 
-# data1 <- read.table("~/linear_parameter_X.txt", header = FALSE)
-# data2 <- read.table("~/linear_parameter_G.txt", header = FALSE)
-# data3 <- read.table("~/linear_parameter_noise.txt", header = FALSE)
 
-# 
-# 
+
+
 X <- as.matrix(data1[, -1])  # 提取向量
 G <- as.matrix(data2[, -1])
 E <- apply(G, c(1, 2), function(x) ifelse(x != 0, 1, 0))
@@ -257,12 +223,12 @@ get_T <- function(Z){
 # pscore0 <- pbinom(0 ,size = num_nb, prob = r1); pscore1 <- 1-pscore0
 pscore0 <- pbinom(threshold ,size = num_nb, prob = r1); pscore1 <- 1-pscore0 #we add a new test!
 
-# 创建图对象
+
 g <- graph_from_adjacency_matrix(E, mode = "undirected")
-# 计算最短路径长度矩阵
+
 shortest_paths_mat <- shortest.paths(g, mode = "all")
-# 输出最短路径长度矩阵
-# print(shortest_paths_mat)
+
+
 
 
 if (avg_path_length < 2*log(n)/log(sum(E)/n)){
@@ -819,14 +785,11 @@ sim_res_oracle_cover <- map_dfr(1:1, ~{
 
 
 
-# 指定要保存的文件路径
-# file_path <- "/home/ZhihengZhang/1022new/result_synthetic.txt"
-# file_path <- "/home/ZhihengZhang/Final_response/syn/bn_3_result_synthetic_linear.txt"
-file_path <- file.path(repo_root, "modify", "bn_1_result_synthetic_linear.txt")
-# file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
 
-# 将数据写入文本文件
-#truth
+file_path <- file.path(repo_root, "modify", "bn_1_result_synthetic_linear.txt")
+
+
+
 write.table(tau, file = file_path, col.names = FALSE)
 
 #estimation
@@ -845,21 +808,6 @@ write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(2*index+1):
 write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*index+1):(5*index)], file = file_path, col.names = FALSE, append = TRUE)
 
 
-# #estimation
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+1):(5*index+index)], file = file_path, col.names = FALSE, append = TRUE)
-# #oracle sd
-# write.table((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[(5*index+1):(5*index+index)], file = file_path, col.names = FALSE, append = TRUE)
-# #practical sd
-# write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+index+1):(5*index+index*2)], file = file_path, col.names = FALSE, append = TRUE)
-# #naive sd
-# write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+3*index+1):(5*index+4*index)], file = file_path, col.names = FALSE, append = TRUE)
-# #oracle coverage
-# write.table((sim_res_oracle_cover$oracle_plus ), file = file_path, col.names = FALSE, append = TRUE)
-# #practical coverage
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+2*index+1):(5*index+3*index)], file = file_path, col.names = FALSE, append = TRUE)
-# #naive coverage
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+4*index+1):(5*index+5*index)], file = file_path, col.names = FALSE, append = TRUE)
-
 
 
 ###########################################################################################################################################################################################################
@@ -877,9 +825,3 @@ cat("数据已成功写入文本文件(bn = 3):", file_path, "\n")
 ###########################################################################################################################################################################################################
 ###########################################################################################################################################################################################################
 
-#file_path <- "linear_parameter_X_final.txt"
-#write.table(X, file = file_path, col.names = FALSE)
-#file_path <- "linear_parameter_G_final.txt"
-#write.table(G, file = file_path, col.names = FALSE)
-#file_path <- "linear_parameter_noise_final.txt"
-#write.table(errors, file = file_path, col.names = FALSE)
