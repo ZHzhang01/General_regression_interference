@@ -744,8 +744,8 @@ quadratic_function <- function(hbeta) {
 
 result <- optim( beta_gao_f,          quadratic_function, control = control)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj_5 <- result$par
 # hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_X_haj_plus <- mean((Y-X_db%*%hbeta_2_haj_5)*w_haj)
@@ -774,8 +774,8 @@ quadratic_function <- function(hbeta) {
 
 result <- optim( beta_gao_lin,          quadratic_function, control = control)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj_4 <- result$par
 var_Ours_X_haj_plus_lin <- result$value
 Ours_X_haj_plus_lin <- mean((Y-X_db%*%hbeta_2_haj_4)*w_haj)
@@ -806,8 +806,8 @@ quadratic_function <- function(hbeta) {
 #result <- optim( matrix(c(hbeta_2_haj_5,rep(0,3)) ),          quadratic_function)
 result <- optim( matrix(c(hbeta_2_haj_5,rep(0,2)) ),          quadratic_function)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj <- result$par
 # hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_newG_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
