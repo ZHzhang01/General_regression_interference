@@ -61,19 +61,6 @@ X <- scale(X,center = T, scale = F)
 
 
 
-#data1 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_X_counter.txt", header = FALSE)
-#data2 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y0_counter.txt", header = FALSE)
-#data3 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_Y1_counter.txt", header = FALSE)
-#data4 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_noise_counter.txt", header = FALSE)
-#data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
-#data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
-
-# data1 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_X_counter.txt", header = FALSE)
-# data2 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y0_counter.txt", header = FALSE)
-# data3 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y1_counter.txt", header = FALSE)
-# data4 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_noise_counter.txt", header = FALSE)
-# data5 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps1_counter.txt", header = FALSE)
-# data6 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps0_counter.txt", header = FALSE)
 
 data1 <- read.table(file.path(repo_root, "counter", "linear_parameter_X_counter.txt"), header = FALSE)
 data2 <- read.table(file.path(repo_root, "counter", "linear_parameter_Y0_counter.txt"), header = FALSE)
@@ -220,7 +207,7 @@ sim_res<- map_dfr(1:100000, ~{
   # }
   # result <- optim( vector("logical", length = 2    ) * 1,          quadratic_function)
   # 
-  # cat("最小值：", result$value, "\n")
+  # cat("min:", result$value, "\n")
   # hbeta_2_haj <- result$par
   
   
@@ -485,12 +472,7 @@ print("practical coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.dat
 print("naive coverage:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*index+1):(5*index)])
 
 
-# print("Estimation+:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+1):(5*index+index)]) 
-# print("oracle sd+:"); print((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[(5*index+1):(5*index+index)]) 
-# print("practical sd+:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+index+1):(5*index+index*2)]) 
-# print("naive sd+:"); print(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+3*index+1):(5*index+4*index)]) 
-# print("practical coverage+:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+2*index+1):(5*index+3*index)]) 
-# print("naive coverage+:"); print((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+4*index+1):(5*index+5*index)])
+
 
 
 
@@ -543,14 +525,8 @@ return(tibble(oracle, oracle_plus))
 
 
 
-
-
-# 
-# file_path <- "/home/ZhihengZhang/Final_response/counter/result_synthetic.txt"
-
 file_path <- file.path(repo_root, "counter", "result_synthetic.txt")
-# file_path <- "/home/ZhihengZhang/syn_total_new/result_synthetic.txt"
-#file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
+
 
 
 
@@ -577,22 +553,6 @@ write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(4*index+1):
 
 
 
-# #estimation
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+1):(5*index+index)], file = file_path, col.names = FALSE, append = TRUE)
-# #oracle sd
-# write.table((sim_res %>% summarise_all(sd)  %>% as.data.frame() )[(5*index+1):(5*index+index)], file = file_path, col.names = FALSE, append = TRUE)
-# #practical sd
-# write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+index+1):(5*index+index*2)], file = file_path, col.names = FALSE, append = TRUE)
-# #naive sd
-# write.table(sqrt(sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+3*index+1):(5*index+4*index)], file = file_path, col.names = FALSE, append = TRUE)
-# #oracle coverage
-# write.table((sim_res_oracle_cover$oracle_plus ), file = file_path, col.names = FALSE, append = TRUE)
-# #practical coverage
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+2*index+1):(5*index+3*index)], file = file_path, col.names = FALSE, append = TRUE)
-# #naive coverage
-# write.table((sim_res %>% summarise_all(mean)  %>% as.data.frame() )[(5*index+4*index+1):(5*index+5*index)], file = file_path, col.names = FALSE, append = TRUE)
-
-
 
 
 
@@ -612,18 +572,6 @@ cat("数据已成功写入文本文件(bn = 3):", file_path, "\n")
 ###########################################################################################################################################################################################################
 
 
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_X_counter.txt"
-#write.table(X, file = file_path, col.names = FALSE)
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_Y1_counter.txt"
-#write.table(Y_1, file = file_path, col.names = FALSE)
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_Y0_counter.txt"
-#write.table(Y_0, file = file_path, col.names = FALSE)
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_noise_counter.txt"
-#write.table(errors, file = file_path, col.names = FALSE)
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_ps1_counter.txt"
-#write.table(pscore1, file = file_path, col.names = FALSE)
-#file_path <- "/home/ZhihengZhang/1031/counter/linear_parameter_ps0_counter.txt"
-#write.table(pscore0, file = file_path, col.names = FALSE)
 
 
 
