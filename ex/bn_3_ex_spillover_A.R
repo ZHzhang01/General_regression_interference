@@ -899,7 +899,7 @@ file_path <- file.path(repo_root, "ex", "bn_3_ex_spillover_A.txt")
 
 write.table(res, file = file_path, col.names = FALSE)
                        
-cat("数据已成功写入文本文件:", file_path, "\n")
+cat("data has been recorded", file_path, "\n")
 
 
 
