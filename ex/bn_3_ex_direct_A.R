@@ -1,4 +1,13 @@
-load("/home/lizonghan/zhiheng_1221_github/ex/703.RData")
+# load("/home/lizonghan/zhiheng_1221_github/ex/703.RData")
+# Paths below are set relative to the root directory of the repository.
+# Please adjust them as needed if your local working directory is different.
+repo_root <- "."
+
+load(file.path(repo_root, "ex", "703.RData"))
+
+
+
+
 # First, we establish eligible Y; 1) attend the second-round session; 2) at least one friend attending the first round:
 library(Matrix)
 library(igraph)
@@ -702,10 +711,12 @@ print(res, n = Inf, width = Inf)
 
 
 
-file_path <- "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt"
-
-write.table(res, file = "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt", col.names = FALSE)
-
+# file_path <- "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt"
+file_path <- file.path(repo_root, "ex", "bn_3_ex_direct_A.txt")
+                       
+# write.table(res, file = "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt", col.names = FALSE)
+write.table(res, file = file_path, col.names = FALSE)
+                       
 cat("数据已成功写入文本文件:", file_path, "\n")
 
 
