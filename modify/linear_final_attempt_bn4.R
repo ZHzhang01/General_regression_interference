@@ -6,7 +6,9 @@ library(stringdist)
 #library(caret)
 
 
-
+# Paths below are set relative to the root directory of the repository.
+# Please adjust them as needed if your local working directory is different.
+repo_root <- "."
 
 n <- 3000
 r1 <- 0.5 
@@ -118,9 +120,12 @@ X <-rnorm(n) %>% scale(scale = FALSE); epsilon <- errors
 
 
 # 
-data1 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_X.txt", header = FALSE)
-data2 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_G.txt", header = FALSE)
-data3 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_noise.txt", header = FALSE)
+# data1 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_X.txt", header = FALSE)
+# data2 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_G.txt", header = FALSE)
+# data3 <- read.table("/home/lizonghan/zhiheng_1221_github/syn/linear_parameter_noise.txt", header = FALSE)
+data1 <- read.table(file.path(repo_root, "syn", "linear_parameter_X.txt"), header = FALSE)
+data2 <- read.table(file.path(repo_root, "syn", "linear_parameter_G.txt"), header = FALSE)
+data3 <- read.table(file.path(repo_root, "syn", "linear_parameter_noise.txt"), header = FALSE)
 # 
 #data1 <- read.table("~/regression_interference_server/previous_data/syn_total_new/linear_parameter_X.txt", header = FALSE)
 #data2 <- read.table("~/regression_interference_server/previous_data/syn_total_new/linear_parameter_G.txt", header = FALSE)
@@ -816,7 +821,8 @@ sim_res_oracle_cover <- map_dfr(1:1, ~{
 
 # 指定要保存的文件路径
 # file_path <- "/home/ZhihengZhang/1022new/result_synthetic.txt"
-file_path <- "/home/ZhihengZhang/Final_response/syn/bn_3_result_synthetic_linear.txt"
+# file_path <- "/home/ZhihengZhang/Final_response/syn/bn_3_result_synthetic_linear.txt"
+file_path <- file.path(repo_root, "modify", "bn_4_result_synthetic_linear.txt")
 # file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
 
 # 将数据写入文本文件
