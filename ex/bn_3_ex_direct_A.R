@@ -1,4 +1,4 @@
-# load("/home/lizonghan/zhiheng_1221_github/ex/703.RData")
+
 # Paths below are set relative to the root directory of the repository.
 # Please adjust them as needed if your local working directory is different.
 repo_root <- "."
