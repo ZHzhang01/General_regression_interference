@@ -580,8 +580,8 @@ quadratic_function <- function(hbeta) {
 
 result <- optim( beta_gao_f,          quadratic_function)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj_5 <- result$par
 # hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_X_haj_plus <- mean((Y-X_db%*%hbeta_2_haj_5)*w_haj)
@@ -611,8 +611,8 @@ quadratic_function <- function(hbeta) {
 
 result <- optim( beta_gao_lin,          quadratic_function)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj_4 <- result$par
 hbeta_2_haj_4 <- matrix(hbeta_2_haj_4)
 var_Ours_X_haj_plus_lin <- result$value
@@ -640,8 +640,8 @@ quadratic_function <- function(hbeta) {
 
 result <- optim( matrix(c(hbeta_2_haj_5,   rep(0,2)  ) ),          quadratic_function)
 
-cat("最小值：", result$value, "\n")
-cat("最优位置：", result$par, "\n")
+cat("min:", result$value, "\n")
+cat("min:", result$par, "\n")
 hbeta_2_haj <- result$par
 # hbeta_2_haj <- solve(t(D_2)%*%A%*%(D_2),   t(D_2)%*%A%*%(D- (mean(Y*w_haj_1)*w_1-mean(Y*w_haj_0)*w_0) )) #here we should use the new variance estimator:
 Ours_newG_haj_plus <- mean((Y-X_db%*%hbeta_2_haj)*w_haj)
@@ -674,8 +674,8 @@ quadratic_function <- function(hbeta) {
 result0 <- optim( matrix(c( hbeta_2_haj_4[1:(ncol(X)), ], rep(0,2),  hbeta_2_haj_4[(ncol(X)+1):(ncol(X)*2), ], rep(0,2)  ) ) ,    quadratic_function, control = control )  
 #
 
-cat("最小值：", result0$value, "\n")
-cat("最优位置：", result0$par, "\n")
+cat("min:", result0$value, "\n")
+cat("min:", result0$par, "\n")
 hbeta_2_haj_4 <- result0$par
 hbeta_2_haj_4 <- matrix(hbeta_2_haj_4)
 var_Ours_newG_haj_plus_lin <- result0$value
@@ -711,13 +711,11 @@ print(res, n = Inf, width = Inf)
 
 
 
-# file_path <- "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt"
 file_path <- file.path(repo_root, "ex", "bn_3_ex_direct_A.txt")
                        
-# write.table(res, file = "/home/ZhihengZhang/Final_response/ex/bn_3_ex_direct_A.txt", col.names = FALSE)
 write.table(res, file = file_path, col.names = FALSE)
                        
-cat("数据已成功写入文本文件:", file_path, "\n")
+cat("data has been recorded", file_path, "\n")
 
 
 
