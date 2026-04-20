@@ -15,7 +15,9 @@ if (!requireNamespace("quadprog", quietly = TRUE)) {
 library(quadprog)
 
 
-
+# Paths below are set relative to the root directory of the repository.
+# Please adjust them as needed if your local working directory is different.
+repo_root <- "."
 
 
 
@@ -66,12 +68,19 @@ X <- scale(X,center = T, scale = F)
 #data5 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps1_counter.txt", header = FALSE)
 #data6 <- read.table("~/regression_interference_server/syn_total_new/linear_parameter_ps0_counter.txt", header = FALSE)
 
-data1 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_X_counter.txt", header = FALSE)
-data2 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y0_counter.txt", header = FALSE)
-data3 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y1_counter.txt", header = FALSE)
-data4 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_noise_counter.txt", header = FALSE)
-data5 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps1_counter.txt", header = FALSE)
-data6 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps0_counter.txt", header = FALSE)
+# data1 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_X_counter.txt", header = FALSE)
+# data2 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y0_counter.txt", header = FALSE)
+# data3 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_Y1_counter.txt", header = FALSE)
+# data4 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_noise_counter.txt", header = FALSE)
+# data5 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps1_counter.txt", header = FALSE)
+# data6 <- read.table("/home/lizonghan/zhiheng_1221_github/counter/linear_parameter_ps0_counter.txt", header = FALSE)
+
+data1 <- read.table(file.path(repo_root, "counter", "linear_parameter_X_counter.txt"), header = FALSE)
+data2 <- read.table(file.path(repo_root, "counter", "linear_parameter_Y0_counter.txt"), header = FALSE)
+data3 <- read.table(file.path(repo_root, "counter", "linear_parameter_Y1_counter.txt"), header = FALSE)
+data4 <- read.table(file.path(repo_root, "counter", "linear_parameter_noise_counter.txt"), header = FALSE)
+data5 <- read.table(file.path(repo_root, "counter", "linear_parameter_ps1_counter.txt"), header = FALSE)
+data6 <- read.table(file.path(repo_root, "counter", "linear_parameter_ps0_counter.txt"), header = FALSE)
 
 
 X <- as.matrix(data1[, -1])  
@@ -537,7 +546,9 @@ return(tibble(oracle, oracle_plus))
 
 
 # 
-file_path <- "/home/ZhihengZhang/Final_response/counter/result_synthetic.txt"
+# file_path <- "/home/ZhihengZhang/Final_response/counter/result_synthetic.txt"
+
+file_path <- file.path(repo_root, "counter", "result_synthetic.txt")
 # file_path <- "/home/ZhihengZhang/syn_total_new/result_synthetic.txt"
 #file_path <- "~/regression_interference_server/syn_total_new/result_synthetic.txt"
 
